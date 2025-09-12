@@ -1,0 +1,16 @@
+# Allow direct access to image files, but deny PHP
+<FilesMatch "\.(php|phtml|php\d)$">
+  Require all denied
+</FilesMatch>
+<FilesMatch "\.(png|jpg|jpeg|webp)$">
+  Require all granted
+</FilesMatch>
+<IfModule mod_authz_core.c>
+  Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+  Deny from all
+</IfModule>
+<FilesMatch "\.(png|jpg|jpeg|webp)$">
+  Require all granted
+</FilesMatch>

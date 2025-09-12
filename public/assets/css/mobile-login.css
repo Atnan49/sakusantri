@@ -1,0 +1,31 @@
+/* Mobile-only overrides: loaded only when max-width condition matches.
+   Fokus: perkecil skala login + hilangkan ruang kosong tanpa mengubah desktop. */
+
+@media (max-width:860px){
+  /* Pastikan wrapper memenuhi lebar */
+  main.login-container .login-main{width:100%;padding-left:14px;padding-right:14px;box-sizing:border-box}
+  /* Sembunyikan brand host + sapaan di header untuk menghemat ruang */
+  .site-header .brand-host,
+  .site-header .hello{display:none!important}
+}
+
+@media (max-width:520px){
+  /* Kecilkan top cap */
+  main.login-container .login-card .login-cap{width:240px;height:120px;border-radius:120px 120px 0 0}
+  main.login-container .login-card .login-cap span{font-size:30px}
+  /* Panel lebih ramping */
+  main.login-container .login-card .login-panel{padding:38px 26px 120px;border-radius:22px}
+  /* Input & label sedikit lebih kecil */
+  main.login-container .login-card label{font-size:12px}
+  main.login-container .login-card input{height:40px;font-size:13px}
+  /* Tombol mengecil & tetap fixed di bawah panel */
+  main.login-container .btn-masuk{font-size:18px;padding:10px 36px;bottom:70px}
+  /* Google button adapt */
+  main.login-container .btn-google{font-size:13px;padding:9px 24px}
+}
+
+@media (max-width:400px){
+  main.login-container .login-card .login-cap{width:210px;height:108px}
+  main.login-container .login-card .login-panel{padding:34px 22px 110px}
+  main.login-container .btn-masuk{font-size:17px;padding:9px 30px;bottom:64px}
+}

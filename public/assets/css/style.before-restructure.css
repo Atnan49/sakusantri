@@ -1,0 +1,182 @@
+/* css/style.css
+   Catatan: Komentar di bawah menjelaskan fungsi tiap selector & properti. */
+
+/* Global: dasar tampilan halaman */
+body {
+    font-family: 'Poppins', sans-serif; /* Font utama */
+    background-color: #f4f7f6;          /* Warna latar lembut */
+    margin: 0;                           /* Hilangkan margin default browser */
+    color: #333;                         /* Warna teks utama */
+}
+
+/* Kartu konten: login & halaman utama */
+.login-container, .container {
+    max-width: 800px;                    /* Lebar maksimum konten */
+    margin: 50px auto;                   /* Posisi tengah (atas-bawah 50px) */
+    padding: 20px;                       /* Ruang dalam */
+    background-color: #fff;              /* Latar putih */
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1); /* Bayangan halus */
+    border-radius: 8px;                  /* Sudut membulat */
+}
+
+/* Grup input form */
+.input-group {
+    margin-bottom: 15px;                 /* Jarak antar field */
+}
+label {
+    display: block;                      /* Label tampil blok */
+    margin-bottom: 5px;                  /* Jarak dengan input */
+    font-weight: 600;                    /* Tebal sedang */
+}
+input[type="text"], input[type="password"], input[type="number"], input[type="file"] {
+    width: 100%;                         /* Input isi lebar kontainer */
+    padding: 10px;                       /* Ruang dalam input */
+    border: 1px solid #ccc;              /* Garis tepi abu */
+    border-radius: 4px;                  /* Sudut membulat */
+    box-sizing: border-box;              /* Padding masuk perhitungan lebar */
+}
+
+/* Tombol umum */
+button {
+    background-color: #28a745;           /* Hijau utama */
+    color: white;                        /* Teks putih */
+    padding: 12px 20px;                  /* Ukuran tombol */
+    border: none;                        /* Tanpa border default */
+    border-radius: 4px;                  /* Sudut membulat */
+    cursor: pointer;                     /* Kursor pointer saat hover */
+    font-size: 16px;                     /* Ukuran teks */
+}
+button:hover {
+    background-color: #218838;           /* Hijau sedikit lebih gelap saat hover */
+}
+
+/* Alert/error/info */
+.error {
+    background-color: #f8d7da;           /* Latar merah muda (danger) */
+    color: #721c24;                      /* Teks merah tua */
+    padding: 10px;                       /* Ruang dalam */
+    border-radius: 4px;                  /* Sudut membulat */
+    margin-bottom: 15px;                 /* Jarak bawah */
+}
+.info {
+    background-color: #d1ecf1;           /* Latar biru muda (info) */
+    color: #0c5460;                      /* Teks biru tua */
+    padding: 10px;                       /* Ruang dalam */
+    border-radius: 4px;                  /* Sudut membulat */
+    margin-bottom: 15px;                 /* Jarak bawah */
+}
+
+/* Ringkasan kartu di dashboard */
+.summary-cards {
+    display: flex;                       /* Susun mendatar */
+    gap: 20px;                           /* Jarak antar kartu */
+    margin-bottom: 20px;                 /* Jarak bawah */
+}
+.card {
+    background-color: #e9f5e9;           /* Latar hijau muda */
+    padding: 20px;                       /* Ruang dalam kartu */
+    border-radius: 8px;                  /* Sudut membulat */
+    flex-grow: 1;                        /* Isi lebar tersisa */
+    text-align: center;                  /* Teks tengah */
+    border-left: 5px solid #28a745;      /* Aksen garis kiri */
+}
+.card-link { text-decoration:none; color:inherit; flex: 1; }
+.card-link .card { transition: box-shadow .2s ease, transform .1s ease; }
+.card-link .card:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.12); transform: translateY(-2px); }
+
+/* Navigasi tombol sederhana */
+nav a {
+    display: inline-block;               /* Tampil sebagai tombol */
+    padding: 10px 15px;                  /* Ukuran tombol */
+    background-color: #007bff;           /* Biru primer */
+    color: white;                        /* Teks putih */
+    text-decoration: none;               /* Hilangkan garis bawah */
+    border-radius: 5px;                  /* Sudut membulat */
+    margin-right: 10px;                  /* Jarak antar tombol */
+}
+nav a:hover {
+    background-color: #0056b3;           /* Biru lebih gelap saat hover */
+}
+
+/* Tabel data */
+table {
+    width: 100%;                         /* Penuhi lebar kontainer */
+    border-collapse: collapse;            /* Gabungkan border */
+    margin-top: 20px;                     /* Jarak atas */
+}
+th, td {
+    padding: 12px;                       /* Ruang dalam sel */
+    border: 1px solid #ddd;              /* Garis sel tipis */
+    text-align: left;                    /* Rata kiri */
+}
+th {
+    background-color: #f2f2f2;           /* Latar kepala tabel */
+}
+
+/* Status label (warna teks) */
+.status-menunggu {
+    color: #ffc107;                      /* Kuning (warning) */
+    font-weight: bold;                   /* Tebal */
+}
+.status-lunas {
+    color: #28a745;                      /* Hijau (success) */
+    font-weight: bold;                   /* Tebal */
+}
+.status-ditolak {
+    color: #dc3545;                      /* Merah (danger) */
+    font-weight: bold;                   /* Tebal */
+}
+
+/* Header atas halaman */
+header {
+    background-color: #fff;              /* Latar putih */
+    padding: 10px 20px;                  /* Ruang dalam */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Bayangan lembut */
+    display: flex;                       /* Susun kiri-kanan */
+    justify-content: space-between;      /* Spasi antara logo & user info */
+    align-items: center;                 /* Rata tengah vertikal */
+}
+header .logo {
+    font-size: 24px;                     /* Ukuran teks logo */
+    font-weight: bold;                   /* Tebal */
+    color: #28a745;                      /* Warna hijau */
+    text-decoration: none;               /* Hilangkan garis bawah pada tautan logo */
+}
+/* Tombol hamburger (tiga garis) untuk membuka menu admin */
+.hamburger {
+    width: 40px; height: 34px; margin-right: 10px; border: 1px solid #e5e5e5; background:#fff; border-radius:6px;
+    display:flex; flex-direction:column; justify-content:center; align-items:center; gap:5px; cursor:pointer;
+}
+.hamburger span { display:block; width:22px; height:2px; background:#28a745; }
+header .user-info a {
+    color: #dc3545;                      /* Tautan Logout merah */
+    text-decoration: none;               /* Tanpa garis bawah */
+    font-weight: bold;                   /* Tebal */
+}
+
+/* Footer bawah halaman */
+footer {
+    text-align: center;                  /* Teks tengah */
+    margin-top: 40px;                    /* Jarak atas */
+    padding: 20px;                       /* Ruang dalam */
+    background-color: #e9ecef;           /* Latar abu muda */
+    color: #6c757d;                      /* Teks abu */
+}
+
+/* Menu bar utama di bawah header (khusus admin) */
+[hidden] { display: none !important; }
+.main-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px 20px;
+    background: #00ff26;              /* Abu-abu jelas, terpisah dari header */
+    align-items: flex-start;
+    margin: 10px 20px;                 /* Jarak dari header dan sisi layar */
+    border: 1px solid #000000;         /* Garis tepi agar terpisah dari header */
+    border-radius: 8px;                /* Sudut membulat untuk kotak menu */
+}
+.main-menu a { background-color: #007bff; color:#fff; padding:8px 12px; border-radius:6px; text-decoration:none; }
+.main-menu a:hover { background-color:#0056b3; }
+.main-menu .menu-spacer { display: none; }
+.main-menu .menu-logout { background:#dc3545; }

@@ -1,0 +1,45 @@
+RewriteEngine On
+# Gunakan per-dir context tanpa RewriteBase agar aman untuk nama folder apa pun (sakusantri/saku_santri, dll)
+# Jika Anda benar-benar perlu, Anda bisa mengaktifkan RewriteBase yang sesuai dengan path URL Anda, contoh:
+#   RewriteBase /sakusantri/
+# Namun defaultnya biarkan dinonaktifkan untuk menghindari 404 karena salah base.
+# RewriteBase /sakusantri/
+
+# --- Pretty URLs within /public ---
+# Login / Logout
+RewriteCond %{REQUEST_METHOD} POST
+RewriteRule ^login$ login_process.php [L]
+RewriteCond %{REQUEST_METHOD} !POST
+RewriteRule ^login$ index.php [L]
+RewriteRule ^logout$ logout.php [L]
+# Admin
+RewriteRule ^admin/?$ admin/index.php [L]
+RewriteRule ^admin/home$ admin/index.php [L]
+RewriteRule ^admin/konfirmasi$ admin/konfirmasi.php [L]
+RewriteRule ^admin/buat-tagihan$ admin/buat_tagihan.php [L]
+RewriteRule ^admin/pengguna$ admin/pengguna.php [L]
+RewriteRule ^admin/pengguna-detail$ admin/pengguna_detail.php [L]
+RewriteRule ^admin/kelola-user$ admin/kelola_user.php [L]
+RewriteRule ^admin/riwayat$ admin/riwayat_transaksi.php [L]
+RewriteRule ^admin/notifikasi$ admin/notifikasi.php [L]
+RewriteRule ^admin/hapus-transaksi$ admin/hapus_transaksi.php [L]
+RewriteRule ^kasir/transaksi$ kasir/transaksi.php [L]
+
+# Wali
+RewriteRule ^wali/?$ wali/index.php [L]
+RewriteRule ^wali/home$ wali/index.php [L]
+RewriteRule ^wali/bayar-spp$ wali/bayar_spp.php [L]
+RewriteRule ^wali/kirim-saku$ wali/kirim_saku.php [L]
+RewriteRule ^wali/riwayat$ wali/riwayat.php [L]
+RewriteRule ^wali/ubah-password$ wali/ubah_password.php [L]
+
+# Bukti
+RewriteRule ^bukti$ view_bukti.php [L]
+RewriteRule ^bukti/f/(.+)$ bukti_file.php?f=$1 [L]
+
+# Fallback to direct files if exist
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule . - [L]
+
+# Otherwise route to index
+RewriteRule . index.php [L]

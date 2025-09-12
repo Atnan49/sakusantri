@@ -1,0 +1,12 @@
+# Deny PHP execution inside uploads
+<FilesMatch "\.(php|php\d*|phtml)$">
+  Require all denied
+</FilesMatch>
+# Allow images only
+<FilesMatch "\.(jpe?g|png|webp|gif)$">
+  Require all granted
+</FilesMatch>
+AddType image/jpeg .jpg .jpeg
+AddType image/png .png
+AddType image/webp .webp
+AddType image/gif .gif

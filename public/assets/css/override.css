@@ -1,0 +1,397 @@
+/* UI Override & Enhancement Layer (non-breaking)
+   Fokus: Aksesibilitas, konsistensi, responsive sidebar, dark mode opsional */
+:root{
+  --focus-color:#2f6d3a;
+  --focus-outline:2px solid var(--focus-color);
+  --focus-ring-box:0 0 0 3px rgba(47,109,58,.45);
+  --transition-fast:.18s cubic-bezier(.4,0,.2,1);
+  --table-sticky-bg:var(--surface);
+}
+
+/* Skip link */
+.skip-link{position:absolute;left:-999px;top:auto;width:1px;height:1px;overflow:hidden}
+.skip-link:focus{left:12px;top:12px;width:auto;height:auto;padding:10px 16px;background:#111;color:#fff;border-radius:8px;z-index:2000;outline:var(--focus-outline)}
+
+/* Unified button focus state */
+.btn-action:focus-visible,.btn-primary:focus-visible,.btn-secondary:focus-visible,.btn-detail:focus-visible,button:focus-visible,a.btn-menu:focus-visible{outline:0;box-shadow:var(--focus-ring-box);position:relative}
+.btn-action:active{transform:translateY(0)}
+
+/* Hover lift (subtle) */
+.btn-action:hover,.btn-primary:hover,.btn-secondary:hover{transform:translateY(-1px)}
+.btn-action:active,.btn-primary:active,.btn-secondary:active{transform:translateY(0)}
+
+/* Center all button labels consistently */
+button,
+.btn-action,
+.btn-primary,
+.btn-secondary,
+.btn-pill,
+.btn-detail,
+.btn-mark,
+.btn-mark-all,
+.btn-masuk,
+.btn-inline{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+}
+
+/* Notification badge align safeguard */
+.notif-badge{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 6px;background:#d22;color:#fff;border-radius:20px;font-size:11px;font-weight:700;line-height:1;margin-left:6px}
+
+/* Responsive sidebar toggle */
+.nav-toggle{display:none;background:var(--matcha);color:#fff;border:0;border-radius:10px;padding:8px 12px;font-size:14px;font-weight:600;gap:6px;align-items:center;cursor:pointer;box-shadow:var(--shadow-sm);transition:var(--transition-fast)}
+.nav-toggle .bar{width:18px;height:2px;background:#fff;position:relative;display:block}
+.nav-toggle .bar:before,.nav-toggle .bar:after{content:"";position:absolute;left:0;width:18px;height:2px;background:#fff;transition:.25s}
+.nav-toggle .bar:before{top:-6px}
+.nav-toggle .bar:after{top:6px}
+body.menu-open .nav-toggle .bar{background:transparent}
+body.menu-open .nav-toggle .bar:before{top:0;transform:rotate(45deg)}
+body.menu-open .nav-toggle .bar:after{top:0;transform:rotate(-45deg)}
+
+@media (max-width:1100px){
+  body.has-sidebar main.container{margin-left:0 !important;padding:40px 28px 100px}
+  /* Force overlay sidebar on mobile (override base mobile toolbar layout) */
+  .main-menu{position:fixed !important;top:0;left:0;bottom:0;width:250px;max-width:72vw;display:flex;flex-direction:column;padding:14px;background:var(--admin-green)!important;z-index:1200;will-change:transform}
+  body.has-sidebar nav#mainMenu.main-menu{transform:translateX(-100%) !important;transition:transform .32s ease;box-shadow:0 8px 24px -6px rgba(0,0,0,.35)}
+  body.menu-open nav#mainMenu.main-menu{transform:translateX(0) !important}
+  body.menu-open{overflow:hidden}
+  .nav-toggle{position:relative;z-index:1300}
+  .nav-toggle{display:inline-flex}
+  .menu-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.4);opacity:0;pointer-events:none;transition:.3s;z-index:1100}
+  body.menu-open .menu-backdrop{opacity:1;pointer-events:auto}
+
+  /* Larger, more readable sidebar menu text on mobile */
+  nav#mainMenu.main-menu .btn-menu{font-size:17px; padding:12px 20px}
+  nav#mainMenu.main-menu .btn-menu .mi{font-size:22px}
+  nav#mainMenu.main-menu .btn-danger{font-size:17px}
+}
+
+/* Reduce motion preference */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition:none!important;scroll-behavior:auto!important}
+}
+
+/* Dark mode (opt-in via system) */
+/* Dark mode removed: force light theme */
+
+/* Form focus uniformity */
+input:focus,select:focus,textarea:focus{outline:var(--focus-outline);outline-offset:2px}
+
+/* Utility enhancements */
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.flex-center{display:flex;align-items:center;justify-content:center}
+
+/* Pagination component (if not styled) */
+.page-nav{display:flex;flex-wrap:wrap;gap:6px;margin:18px 0 0}
+.page-nav a,.page-nav span{min-width:40px;text-align:center;padding:8px 12px;font-size:13px;font-weight:600;border-radius:10px;text-decoration:none;background:var(--surface-alt);color:var(--carob);border:1px solid var(--border);transition:var(--transition-fast)}
+.page-nav a:hover{background:var(--vanilla)}
+.page-nav .current{background:var(--matcha);color:#fff;border-color:var(--matcha)}
+
+/* Compact table density utility */
+.table.table-compact tbody td{padding:8px 12px}
+.table.table-compact thead th{padding:8px 12px}
+
+/* Safe max width for images in proof modal */
+.proof-wrap img{max-height:320px;object-fit:contain}
+
+/* === Sidebar Improvements === */
+.main-menu{font-family:'Segoe UI',system-ui,sans-serif;--menu-pad:14px;padding:10px 0 80px;gap:4px}
+.main-menu .nav-brand-block,.main-menu .wali-brand-block{padding:0 18px 14px;margin:0 0 10px;border-bottom:1px solid rgba(0,0,0,.08)}
+.main-menu .brand-header,.wali-logo-row{display:flex;align-items:center;gap:10px;margin:0 0 14px}
+.main-menu .brand-logo img,.wali-logo-icon img{width:54px;height:54px;object-fit:contain;filter:drop-shadow(0 2px 4px rgba(0,0,0,.25))}
+.main-menu .brand-text,.wali-logo-text{font-size:20px;font-weight:750;letter-spacing:.5px}
+.admin-avatar img{width:70px;height:70px;border-radius:50%;object-fit:cover;box-shadow:0 4px 12px -4px rgba(0,0,0,.4);margin:0 0 12px}
+.greet-wrap,.wali-greet{display:flex;flex-direction:column;gap:2px;font-size:12px;font-weight:600;color:#111}
+.greet-wrap .role{font-size:11px;letter-spacing:.6px;background:rgba(255,255,255,.45);padding:4px 10px;border-radius:30px;align-self:flex-start}
+.btn-menu{position:relative;border-radius:10px;margin:0 10px;font-size:13px;letter-spacing:.3px}
+/* Wali shell context: slightly smaller default menu text */
+body.wali .main-menu .btn-menu{font-size:12px}
+.btn-menu .notif-badge{position:absolute;right:12px;top:50%;transform:translateY(-50%)}
+a.btn-menu.active{background:rgba(0,0,0,.18)!important;color:#0b0f0a}
+body.menu-open .main-menu{box-shadow:0 6px 22px -8px rgba(0,0,0,.5)}
+.main-menu::-webkit-scrollbar{width:10px}
+.main-menu::-webkit-scrollbar-track{background:rgba(0,0,0,.05)}
+.main-menu::-webkit-scrollbar-thumb{background:rgba(0,0,0,.28);border-radius:20px;border:2px solid rgba(0,0,0,.05)}
+.main-menu .btn-danger{margin:30px 10px 0}
+
+/* Scroll shadow indicator */
+.main-menu{background:linear-gradient(var(--admin-green) 0 0) padding-box,linear-gradient(to bottom,rgba(0,0,0,.15),rgba(0,0,0,0) 60px) border-box}
+.main-menu.scrolled-top{box-shadow:none}
+.main-menu.scrolled{box-shadow:0 6px 18px -8px rgba(0,0,0,.45) inset}
+
+/* Wali-only: make sidebar text a bit smaller (desktop) */
+.main-menu.wali-menu .btn-menu{font-size:12px}
+.main-menu.wali-menu .btn-menu .mi{font-size:16px}
+.main-menu.wali-menu .menu-title{font-size:11px}
+
+/* Dark mode overrides removed */
+
+/* === Layout & Components (Redesign) === */
+.page-shell{display:flex;flex-direction:column;gap:32px;padding:0 0 80px}
+.content-header{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:18px}
+.content-header h1{margin:0;font-size:26px;font-weight:750;letter-spacing:.4px;color:var(--carob)}
+.content-header .actions{display:flex;gap:10px;flex-wrap:wrap}
+.metric-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:18px;margin:4px 0 12px}
+.metric-card{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:18px 20px 20px;display:flex;flex-direction:column;gap:4px;box-shadow:var(--shadow-sm);overflow:hidden}
+.metric-card:before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.55),rgba(255,255,255,0));opacity:0;transition:.35s}
+.metric-card:hover:before{opacity:1}
+.metric-card h3{margin:0;font-size:12px;font-weight:700;letter-spacing:.5px;color:var(--muted);text-transform:uppercase}
+.metric-card .val{font-size:30px;line-height:1;font-weight:750;letter-spacing:.5px;color:var(--carob)}
+.metric-card .sub{font-size:11px;font-weight:600;color:var(--muted)}
+.panel.section{display:flex;flex-direction:column;gap:20px}
+.panel.section h2{margin:0;font-size:18px;font-weight:700;color:var(--carob)}
+
+/* Payment queue lists (admin & wali) */
+.queue-lists{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:22px}
+.queue-panel{background:var(--surface-alt);border:1px solid var(--border);border-radius:18px;padding:18px 20px 22px;display:flex;flex-direction:column;gap:14px;box-shadow:var(--shadow-sm)}
+.queue-panel h3{margin:0;font-size:15px;font-weight:700;color:var(--carob)}
+.date-block{display:flex;flex-direction:column;gap:10px}
+.date-block-head{font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--muted);text-transform:uppercase;display:flex;align-items:center;gap:6px}
+.trans-item{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:10px 12px;border:1px solid var(--border-soft);border-radius:14px;background:var(--surface);font-size:13px;font-weight:500;line-height:1.2;position:relative}
+.trans-item:hover{background:var(--surface-soft)}
+.trans-meta{display:flex;flex-direction:column;gap:4px;flex:1}
+.trans-name{font-weight:600;color:var(--carob);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.trans-time{font-size:11px;font-weight:600;color:var(--muted)}
+.trans-amount{font-weight:700;color:var(--carob);font-size:14px}
+.status-wait{background:var(--warn-bg);color:var(--warn);font-size:11px;font-weight:700;padding:6px 10px;border-radius:30px;letter-spacing:.4px}
+
+/* Table dense header alignment refinement */
+.table thead th:first-child{border-top-left-radius:0}
+
+/* Filter bar redesign */
+.filter-inline{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin:0 0 14px}
+.filter-inline .field{display:flex;flex-direction:column;gap:6px}
+.filter-inline label{font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--muted)}
+.filter-inline input,.filter-inline select{height:40px;padding:0 12px;border:1px solid var(--border);border-radius:12px;background:#fff;font-size:13px;min-width:140px}
+.filter-inline button{height:40px}
+
+/* Badge status unify (override older) */
+.status-wait,.tp-wait{background:var(--warn-bg);color:var(--warn)}
+.tp-ok{background:var(--success-bg);color:var(--success)}
+.tp-bad{background:var(--danger-bg);color:var(--danger)}
+.tp-stat{font-size:11px;font-weight:700;padding:6px 10px;border-radius:30px;letter-spacing:.4px}
+
+/* Auth shell spacing fix (login) */
+.auth-shell{display:flex;flex-direction:column;gap:34px;padding:40px 0 80px}
+
+/* Utility spacing new */
+.stack-20{display:flex;flex-direction:column;gap:20px}
+.stack-14{display:flex;flex-direction:column;gap:14px}
+
+/* Responsive adjustments */
+@media (max-width:780px){
+  .metric-card .val{font-size:24px}
+  .content-header h1{font-size:22px}
+}
+
+/* === Avatar & Heading Enhancements (appended) === */
+.page-shell h1{font-size:28px;font-weight:750;letter-spacing:.5px;color:var(--carob);margin:0 0 6px}
+.page-shell h1 small{display:block;font-size:12px;font-weight:600;letter-spacing:.6px;color:var(--muted);margin-top:4px;text-transform:uppercase}
+.admin-avatar{position:relative;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#78906d,#5f7455);border-radius:50%;width:70px;height:70px;margin:0 0 12px;overflow:hidden}
+.admin-avatar.no-img{background:linear-gradient(135deg,#6f8c55,#57713d)}
+.admin-avatar .avatar-letter{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:700;color:#fff;letter-spacing:.5px;text-shadow:0 2px 6px rgba(0,0,0,.35)}
+/* === Avatar & Heading Tweaks (visibility + size) === */
+.admin-avatar{width:100px;height:100px;margin:4px 0 16px}
+.admin-avatar .avatar-letter{font-size:44px}
+.main-menu .brand-header{gap:14px}
+.main-menu .brand-text{font-size:22px}
+.content-header h1, .page-shell h1{font-size:32px;font-weight:800;color:#1b1f17;letter-spacing:.6px}
+/* Dark mode heading tweaks removed */
+
+/* Force black text in light mode for higher contrast */
+/* Explicit light-mode media removed; default styles are light */
+
+/* Final enforce heading color (regardless of system theme) */
+.content-header h1, .page-shell h1{color:#000 !important;text-shadow:none !important}
+
+/* Theme toggle removed */
+
+/* Sticky table headers (large screens) */
+@media (min-width:861px){
+  .table thead th{position:sticky;top:0;z-index:5;background:var(--table-sticky-bg);backdrop-filter:saturate(180%) blur(6px)}
+  .table.table-compact thead th{top:0}
+}
+
+/* Enhanced alert styles */
+.alert{border-radius:14px;padding:14px 16px;font-size:13px;font-weight:600;border:1px solid var(--border-soft);background:var(--surface-alt);position:relative;overflow:hidden}
+.alert.success{border-color:#4d8a5f;background:linear-gradient(#e5f8ed,#d1f1df)}
+.alert.error{border-color:#d8544c;background:linear-gradient(#fde5e4,#fad2d0)}
+.alert:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 18% 10%,rgba(255,255,255,.7),rgba(255,255,255,0));opacity:.6;pointer-events:none}
+
+/* Utility: subtle card hover */
+.panel.hoverable{transition:.25s box-shadow, .25s transform}
+.panel.hoverable:hover{box-shadow:var(--shadow-lg);transform:translateY(-2px)}
+
+/* Dark mode removed */
+
+/* === New Dashboard Pill Cards (match design reference) === */
+.dash-pills{display:flex;flex-wrap:wrap;gap:40px;margin:10px 0 34px}
+.dash-pill{flex:1 1 300px;max-width:460px;background:#6a5431;color:#fff;border-radius:16px;padding:26px 30px;position:relative;box-shadow:0 6px 18px -6px rgba(0,0,0,.35);display:flex;flex-direction:column;gap:8px;font-family:'Segoe UI',system-ui,sans-serif}
+.dash-pill h3{margin:0;font-size:18px;font-weight:700;letter-spacing:.4px;color:#f6f2ec}
+.dash-pill .value{font-size:30px;font-weight:800;letter-spacing:.5px;color:#04aa6d}
+.dash-pill .sub{font-size:15px;font-weight:600;color:#d9d4cd;letter-spacing:.3px}
+.dash-pill .cta{position:absolute;top:10px;right:10px;background:#f59b22;color:#fff;border:0;border-radius:10px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:4px;box-shadow:0 3px 8px -2px rgba(0,0,0,.4)}
+.dash-pill .cta:hover{filter:brightness(.95)}
+@media (max-width:980px){.dash-pills{gap:24px}.dash-pill{flex:1 1 100%;max-width:100%}}
+
+/* === Top-up Page Desktop Enhancements === */
+.topup-page{max-width:980px}
+.history-page,.notif-page,.change-pass-page,.topup-page{
+  margin-inline:auto;
+}
+.notif-page,.change-pass-page{width:100%}
+
+/* === Wali: Wallet History Desktop Tweaks === */
+.wallet-page{max-width:1100px;margin-inline:auto;padding-bottom:60px}
+.wallet-page .back-link{display:inline-block;text-decoration:none;font-size:12px;color:#555;margin:4px 0 6px}
+.wallet-page .wallet-title{margin:8px 0 20px;font-size:30px;font-weight:800;letter-spacing:.4px}
+.wallet-page .wallet-balance{margin-bottom:24px}
+.wallet-balance h2{margin:0 0 12px;font-size:18px}
+.wallet-balance-amount{font-size:34px;font-weight:800;color:#2e6d4b}
+.wallet-balance-meta{font-size:12px;color:#666;margin-top:6px}
+.wallet-history h2{margin:0 0 12px;font-size:18px}
+.wallet-table-desktop{overflow-x:auto;border:1px solid var(--border);border-radius:12px}
+.wallet-table-desktop table{min-width:880px;width:100%}
+.wallet-mobile-list{display:none}
+@media (max-width:860px){
+  .wallet-page{max-width:100%}
+  .wallet-mobile-list{display:block}
+  .wallet-table-desktop{display:none}
+}
+.topup-page .wali-page-title{font-size:34px;margin:0 0 10px}
+.topup-page .topup-steps{gap:18px;margin:4px 0 24px}
+.topup-page .step-item{width:80px;height:80px;font-size:24px}
+.topup-page .topup-panel{padding:28px 32px}
+.topup-page .topup-steps{display:flex;align-items:center}
+.topup-page .topup-steps .step-item{
+  display:inline-flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+}
+.topup-page .topup-steps .step-item span{
+  display:block;
+  margin-top:6px;
+  font-size:12px;
+  line-height:1.2;
+  text-align:center;
+}
+.topup-page .topup-h2{font-size:22px;margin-bottom:8px}
+.topup-page .topup-transfer-note{font-size:14px}
+.topup-page .topup-form input[type=text]{height:50px;font-size:20px}
+.topup-page .form-actions{margin-top:10px}
+.topup-page .btn-pill.primary{height:44px;padding:0 26px}
+.topup-page .btn-secondary{height:44px}
+.topup-page .confirm-box-amount{font-size:16px}
+
+/* Payment confirmation board layout (two column card) */
+.confirm-board{background:#fff;border:1px solid #2d2a26;border-radius:18px;padding:26px 28px;display:flex;flex-direction:row;gap:40px;position:relative;box-shadow:0 10px 26px -10px rgba(0,0,0,.25)}
+.confirm-column{flex:1 1 50%;display:flex;flex-direction:column;gap:18px}
+.confirm-column h4{margin:0 0 4px;font-size:16px;font-weight:700;letter-spacing:.5px;text-align:center}
+.confirm-date{font-size:11px;font-weight:700;letter-spacing:.5px;color:#222;border-top:1px solid #111;padding-top:8px;margin-top:14px}
+.confirm-item{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:10px 0;border-bottom:1px solid #ddd;font-size:13px;font-weight:500}
+.confirm-item:last-child{border-bottom:0}
+.confirm-left{display:flex;align-items:center;gap:10px}
+.avatar-dot{width:28px;height:28px;border-radius:50%;background:#000;flex:0 0 auto}
+
+/* Wali initials avatar */
+.wali-avatar{position:relative}
+.wali-avatar .avatar-letter{
+  display:flex;align-items:center;justify-content:center;
+  font-size:44px;font-weight:700;color:#fff;letter-spacing:.5px;
+  text-shadow:0 2px 6px rgba(0,0,0,.35)
+}
+.amount-positive{font-weight:700;color:#047857;font-size:13px}
+.badge-wait{background:#f7ede0;color:#a16100;border:1px solid #d9b88a;padding:4px 10px;font-size:11px;font-weight:700;border-radius:30px;letter-spacing:.4px}
+@media (max-width:860px){.confirm-board{flex-direction:column;padding:20px 20px}.confirm-column{gap:12px}}
+
+/* === Admin Dashboard Refined (closer to mockup) === */
+.stat-row{display:flex;flex-wrap:wrap;gap:60px;margin:6px 0 34px}
+.stat-box{position:relative;flex:1 1 360px;max-width:520px;background:#6a5431;color:#fff;border-radius:16px;padding:28px 34px;display:flex;flex-direction:column;gap:6px;box-shadow:0 10px 26px -10px rgba(0,0,0,.35)}
+.stat-box h3{margin:0;font-size:20px;font-weight:700;letter-spacing:.4px;color:#f5f2ec}
+.stat-box .amount{font-size:40px;font-weight:800;letter-spacing:.6px;color:#06a96c;margin-top:4px}
+.stat-box .amount.secondary{font-size:30px;color:#d9d4cd;font-weight:700}
+.stat-box .mini-act{position:absolute;top:12px;right:12px;background:#f59b22;color:#fff;font-size:11px;font-weight:600;border:0;border-radius:10px;padding:6px 12px;cursor:pointer;box-shadow:0 4px 12px -4px rgba(0,0,0,.4)}
+.stat-box .mini-act:hover{filter:brightness(.95)}
+@media (max-width:980px){.stat-row{gap:28px}.stat-box{flex:1 1 100%;max-width:100%}}
+
+.section-line-title{display:flex;align-items:center;gap:16px;margin:10px 0 24px;font-size:26px;font-weight:700;letter-spacing:.5px;color:#555}
+.section-line-title span{background:transparent;padding:0}
+.section-line-title:after{content:"";flex:1;height:2px;background:#555;opacity:.35}
+
+.confirm-wrapper{position:relative;background:#fff;border:1px solid #222;border-radius:18px;padding:30px 40px;display:flex;flex-direction:row;gap:50px;box-shadow:0 10px 26px -12px rgba(0,0,0,.25);margin-bottom:30px}
+.c-col{flex:1 1 50%;display:flex;flex-direction:column}
+.c-head{text-align:center;font-size:18px;font-weight:700;letter-spacing:.4px;margin:0 0 12px}
+.c-date-block{margin:0 0 18px}
+.c-date-line{font-size:11px;font-weight:700;letter-spacing:.5px;margin:10px 0 6px;border-top:1px solid #111;padding-top:8px}
+.c-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #d5d5d5;font-size:13px}
+.c-item:last-child{border-bottom:0}
+.dot{width:26px;height:26px;background:#000;border-radius:50%}
+.c-meta{flex:1;display:flex;flex-direction:column;gap:2px}
+.c-name{font-weight:600;color:#111;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.c-name .t{font-size:10px;font-weight:600;color:#444}
+.c-amt{font-weight:700;color:#047857;font-size:13px}
+.c-divider{width:2px;background:#222;align-self:stretch;margin:0 10px}
+.badge-wait{background:#f7ede0;color:#a16100;border:1px solid #d9b88a;padding:4px 10px;font-size:11px;font-weight:700;border-radius:30px;letter-spacing:.4px;white-space:nowrap}
+.empty{font-size:12px;color:#666;margin:0}
+@media (max-width:920px){.confirm-wrapper{flex-direction:column;padding:26px 26px}.c-divider{display:none}.c-col{width:100%}}
+
+/* === Wali: Riwayat (History) Desktop Tweaks === */
+.history-page{max-width:1040px}
+.history-page .wali-page-title{font-size:32px;margin:2px 0 12px}
+.history-page .tab-bar{gap:12px;margin-bottom:20px}
+.history-page .btn-tab{display:inline-flex;align-items:center;justify-content:center;height:40px;padding:0 16px;border-radius:12px;background:var(--surface-alt);border:1px solid var(--border);font-weight:700;color:var(--carob)}
+.history-page .btn-tab.active{background:var(--matcha);color:#fff;border-color:var(--matcha)}
+.history-page .panel{padding:18px 20px;border-radius:16px}
+.history-page .table-wrap{border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.history-page table.table{width:100%}
+.history-page table.table thead th{background:var(--surface-alt)}
+.history-page .btn-action.small{height:32px}
+
+/* === Wali: Notifikasi Desktop Tweaks === */
+.notif-page{max-width:920px}
+.notif-page .notif-title{font-size:32px;margin:2px 0 12px}
+.notif-page .notif-actions{display:flex;gap:10px}
+.notif-page .btn-mark-all{height:40px;padding:0 16px;border-radius:12px;font-weight:700}
+.notif-page .notif-list{display:flex;flex-direction:column;gap:12px}
+.notif-page .notif-item{border:1px solid var(--border);background:#fff;border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;box-shadow:var(--shadow-sm)}
+.notif-page .notif-item.unread{border-color:#3a7d4f}
+.notif-page .notif-item .meta{display:flex;gap:8px;align-items:center;font-size:12px;color:#666}
+.notif-page .notif-item .message{font-size:14px;font-weight:600;color:#222}
+.notif-page .form-mark-one{margin-top:4px}
+.notif-page .btn-mark{height:32px;padding:0 12px;border-radius:10px}
+.notif-page .sudah{font-size:12px;color:#666}
+
+/* === Wali: Ubah Password Desktop Tweaks === */
+.change-pass-page{max-width:720px}
+.pass-panel{padding:22px 24px;border-radius:16px}
+.pass-form .input-group{display:flex;flex-direction:column;gap:8px}
+.pass-form .input-group.has-toggle .field-wrap{position:relative;display:flex;align-items:center}
+.pass-form .input-group .field-wrap input{height:44px;padding:0 42px 0 12px;border:1px solid var(--border);border-radius:12px;font-size:14px}
+.pass-form .pw-toggle{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:transparent;width:38px;height:38px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;color:#444}
+.pass-form .pw-toggle:hover{background:rgba(0,0,0,.06)}
+.pass-form .btn-pill{height:44px}
+
+/* === Admin: Generate - Periode Terakhir readability === */
+.recent-head{display:grid;grid-template-columns:1fr 120px 160px;gap:12px;padding:8px 12px;font-weight:700;font-size:13px;color:#333;background:#f5f7fa;border:1px solid #e6ebf1;border-bottom:none;border-radius:8px 8px 0 0}
+.recent-head span:nth-child(2),
+.recent-periods .c{text-align:center}
+.recent-head span:nth-child(3),
+.recent-periods .amt{text-align:right}
+.recent-periods{list-style:none;margin:0;padding:0;border:1px solid #e6ebf1;border-radius:0 0 8px 8px;overflow:hidden}
+.recent-periods li{display:grid;grid-template-columns:1fr 120px 160px;gap:12px;padding:10px 12px;align-items:center;border-top:1px solid #eef2f7}
+.recent-periods li:first-child{border-top:none}
+.recent-periods li:nth-child(odd){background:#fafbfc}
+.recent-periods .p{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;letter-spacing:.2px}
+.recent-periods .empty{text-align:center;padding:14px;color:#777;display:block;grid-column:1/-1}
+@media (max-width:640px){
+  .recent-head{display:none}
+  .recent-periods{border-radius:8px}
+  .recent-periods li{grid-template-columns:1fr;gap:6px}
+  .recent-periods .c,.recent-periods .amt{text-align:left;opacity:.9}
+}
+
+

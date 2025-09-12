@@ -1,0 +1,51 @@
+ngrok.yml
+*.log
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Logs and runtime
+*.log
+tmp/
+cache/
+
+# Composer
+/vendor/
+composer.lock
+
+# Environment
+.env
+
+# Editors
+.vscode/
+.idea/
+!.vscode/settings.json
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build
+dist/
+
+# App artifacts
+_backup_*/
+public/uploads/*
+public/assets/uploads/*
+uploads/*
+!public/uploads/.htaccess
+!public/assets/uploads/.htaccess
+# Ignore legacy duplicates and backups
+/login_process.php
+/setup_admin.php
+/wali/**
+public/*.bak
+public/*/*.bak
+public/admin/index.php.bak
+
+# Keep SQL scripts
+!scripts/**/*.sql
