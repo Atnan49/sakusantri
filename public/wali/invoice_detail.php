@@ -107,7 +107,7 @@ require_once BASE_PATH.'/src/includes/header.php';
         <div class="pay-instr panel-lite">
           <h3 class="instr-title">Instruksi Pembayaran SPP</h3>
           <div class="bank-label"><b>Transfer ke Rekening Pondok:</b></div>
-          <div class="bank-info"><b><span id="bankText">BSI 664701012881537 a.n. RUMAH TAHFIDZ BAITUL</span></b>
+          <div class="bank-info"><b><span id="bankText">BRI 664701012881537 a.n. RUMAH TAHFIDZ BAITUL</span></b>
             <button type="button" class="copy-btn" data-target="bankText">Salin</button>
           </div>
           <div class="money-line">Nominal yang harus ditransfer: <b id="amountText">Rp <?= number_format($remaining,0,',','.') ?></b>
