@@ -89,12 +89,14 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
                             } else {
                                 $pesan_error='Gagal tambah pengguna ('.$errNo.').';
                             }
-                            error_log('[kelola_user] insert fail errno='.$errNo.' msg='.$errMsg.' sql='+$sqlIns);
+                            // Perbaiki konkatenasi string (PHP menggunakan titik "." bukan "+")
+                            error_log('[kelola_user] insert fail errno='.$errNo.' msg='.$errMsg.' sql='.$sqlIns);
                         }
                     } else {
                         $errMsg=mysqli_error($conn); $errNo=mysqli_errno($conn);
                         $pesan_error='Gagal menyiapkan insert ('.$errNo.').';
-                        error_log('[kelola_user] prepare fail errno='.$errNo.' msg='.$errMsg.' sqlAttempt='+$sqlIns);
+                        // Perbaiki konkatenasi string
+                        error_log('[kelola_user] prepare fail errno='.$errNo.' msg='.$errMsg.' sqlAttempt='.$sqlIns);
                     }
                 }
             }
@@ -128,7 +130,27 @@ $saldoSelect = $hasSaldo? 'saldo,' : '0 AS saldo,';
 // Sesuaikan avg saldo
 if(!$hasSaldo){ $avgSaldo = 0; }
 
-$users=[]; $sql="SELECT id,nama_wali,nama_santri,nisn,$saldoSelect $selectAvatar (SELECT COUNT(*) FROM transaksi t WHERE t.user_id=users.id AND t.jenis_transaksi='spp' AND t.status='menunggu_pembayaran') spp_due FROM users WHERE $where ORDER BY spp_due DESC, id DESC LIMIT $offset,$perPage"; $res=mysqli_query($conn,$sql); while($res && $r=mysqli_fetch_assoc($res)){ if(!$hasAvatar){ $r['avatar']=''; } if(!$hasSaldo){ $r['saldo']=0; } $users[]=$r; }
+$users=[];
+// Tentukan sumber perhitungan SPP due: pakai tabel invoice (baru) jika ada; jika tidak, fallback ke transaksi (legacy)
+$sppDueExpr = '0';
+$hasInvoiceTbl = false; $hasTransaksiTbl = false;
+$chkInv = @mysqli_query($conn, "SHOW TABLES LIKE 'invoice'"); if($chkInv && mysqli_num_rows($chkInv)>0) { $hasInvoiceTbl = true; }
+$chkTrx = @mysqli_query($conn, "SHOW TABLES LIKE 'transaksi'"); if($chkTrx && mysqli_num_rows($chkTrx)>0) { $hasTransaksiTbl = true; }
+if($hasInvoiceTbl){
+    // Hitung invoice SPP yang belum lunas: pending/partial/overdue dianggap masih due
+    $sppDueExpr = "(SELECT COUNT(*) FROM invoice inv WHERE inv.user_id=users.id AND inv.type='spp' AND inv.status IN ('pending','partial','overdue'))";
+} elseif($hasTransaksiTbl) {
+    // Fallback legacy: status menunggu_pembayaran atau menunggu_konfirmasi masih due
+    $sppDueExpr = "(SELECT COUNT(*) FROM transaksi t WHERE t.user_id=users.id AND t.jenis_transaksi='spp' AND t.status IN ('menunggu_pembayaran','menunggu_konfirmasi'))";
+}
+
+$sql = "SELECT id,nama_wali,nama_santri,nisn,$saldoSelect $selectAvatar $sppDueExpr AS spp_due FROM users WHERE $where ORDER BY id ASC LIMIT $offset,$perPage";
+$res=mysqli_query($conn,$sql);
+while($res && $r=mysqli_fetch_assoc($res)){
+    if(!$hasAvatar){ $r['avatar']=''; }
+    if(!$hasSaldo){ $r['saldo']=0; }
+    $users[]=$r;
+}
 $totalPages=max(1, (int)ceil($totalFiltered/$perPage));
 
 require_once __DIR__ . '/../../src/includes/header.php';
