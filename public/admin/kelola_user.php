@@ -137,8 +137,8 @@ $hasInvoiceTbl = false; $hasTransaksiTbl = false;
 $chkInv = @mysqli_query($conn, "SHOW TABLES LIKE 'invoice'"); if($chkInv && mysqli_num_rows($chkInv)>0) { $hasInvoiceTbl = true; }
 $chkTrx = @mysqli_query($conn, "SHOW TABLES LIKE 'transaksi'"); if($chkTrx && mysqli_num_rows($chkTrx)>0) { $hasTransaksiTbl = true; }
 if($hasInvoiceTbl){
-    // Hitung invoice SPP yang belum lunas: pending/partial/overdue dianggap masih due
-    $sppDueExpr = "(SELECT COUNT(*) FROM invoice inv WHERE inv.user_id=users.id AND inv.type='spp' AND inv.status IN ('pending','partial','overdue'))";
+    // Hitung invoice SPP & Daftar Ulang yang belum lunas: pending/partial/overdue dianggap masih due
+    $sppDueExpr = "(SELECT COUNT(*) FROM invoice inv WHERE inv.user_id=users.id AND inv.type IN ('spp','daftar_ulang') AND inv.status IN ('pending','partial','overdue'))";
 } elseif($hasTransaksiTbl) {
     // Fallback legacy: status menunggu_pembayaran atau menunggu_konfirmasi masih due
     $sppDueExpr = "(SELECT COUNT(*) FROM transaksi t WHERE t.user_id=users.id AND t.jenis_transaksi='spp' AND t.status IN ('menunggu_pembayaran','menunggu_konfirmasi'))";
@@ -180,7 +180,7 @@ require_once __DIR__ . '/../../src/includes/header.php';
     </form>
     <div class="table-scroll-wrap">
         <table class="pengguna-table ku-table refined">
-            <thead><tr><th>#</th><th>Santri</th><th>NIS</th><th>Saldo</th><th>SPP</th><th>Wali</th><th>Aksi</th></tr></thead>
+            <thead><tr><th>#</th><th>Santri</th><th>NIS</th><th>Saldo</th><th>Tagihan</th><th>Wali</th><th>Aksi</th></tr></thead>
             <tbody>
                 <?php $i=$offset+1; if(!empty($users)): foreach($users as $u): ?>
                 <tr>
@@ -195,7 +195,7 @@ require_once __DIR__ . '/../../src/includes/header.php';
                     </td>
                     <td data-th="NIS" class="col-nisn"><code><?= e($u['nisn']) ?></code></td>
                     <td data-th="Saldo" class="col-saldo text-end"><span class="chip saldo <?= (float)$u['saldo']<=0?'zero':'' ?>">Rp <?= number_format($u['saldo'],0,',','.') ?></span></td>
-                    <td data-th="SPP" class="col-spp text-center"><?php if((int)$u['spp_due']>0): ?><span class="chip due-mini" title="Tagihan menunggu"><?= (int)$u['spp_due'] ?></span><?php else: ?><span class="chip ok" style="font-size:10px">Lunas</span><?php endif; ?></td>
+                    <td data-th="Tagihan" class="col-spp text-center"><?php if((int)$u['spp_due']>0): ?><span class="chip due-mini" title="Tagihan menunggu"><?= (int)$u['spp_due'] ?></span><?php else: ?><span class="chip ok" style="font-size:10px">Lunas</span><?php endif; ?></td>
                     <td data-th="Wali" class="col-wali"><span class="wali-name-short" title="<?= e($u['nama_wali']) ?>"><?= e($u['nama_wali']) ?></span></td>
                     <td data-th="Aksi" class="col-aksi">
                         <div class="action-row">
