@@ -36,6 +36,9 @@ require_once BASE_PATH.'/src/includes/header.php';
   <h1>Semua Tagihan</h1>
     <div class="actions"><a href="kirim_saku.php" class="btn-action outline" style="text-decoration:none">Top-Up Wallet</a></div>
   </div>
+  <?php if(isset($_GET['msg']) && $_GET['msg']!==''): ?>
+    <div class="panel section" style="background:#f0f7f0;border-color:#dfe6db"><div class="alert success" style="margin:0"><?= e($_GET['msg']) ?></div></div>
+  <?php endif; ?>
   <div class="panel section">
     <h2>Filter</h2>
     <form method="get" class="filter-inline">
@@ -62,14 +65,28 @@ require_once BASE_PATH.'/src/includes/header.php';
   </div>
   <div class="panel section">
     <h2>Daftar Tagihan</h2>
-    <div class="table-wrap invoice-table-desktop">
-      <table class="table table-compact" style="min-width:680px">
-        <thead><tr><th>ID</th><th>Jenis</th><th>Periode</th><th>Nominal</th><th>Dibayar</th><th>Status</th><th>Jatuh Tempo</th><th>Aksi</th></tr></thead>
-        <tbody>
+    <form id="bulkForm" method="post" action="invoice_bulk_upload.php">
+      <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>" />
+      <div class="table-wrap invoice-table-desktop">
+        <table class="table table-compact" style="min-width:760px">
+          <thead>
+            <tr>
+              <th class="bulk-col" style="display:none;width:36px"><input type="checkbox" id="chkAll" aria-label="Pilih semua" /></th>
+              <th>ID</th><th>Jenis</th><th>Periode</th><th>Nominal</th><th>Dibayar</th><th>Status</th><th>Jatuh Tempo</th><th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
         <?php if(!$rows): ?>
-          <tr><td colspan="8" style="text-align:center;font-size:13px;color:#777">Belum ada tagihan.</td></tr>
+          <tr><td colspan="9" style="text-align:center;font-size:13px;color:#777">Belum ada tagihan.</td></tr>
         <?php else: foreach($rows as $inv): ?>
+          <?php 
+            $remaining = max(0, (float)$inv['amount'] - (float)$inv['paid_amount']);
+            $eligible = ($remaining > 0) && !in_array($inv['status'], ['canceled','paid'], true);
+          ?>
           <tr>
+            <td class="bulk-col" style="display:none;text-align:center">
+              <input type="checkbox" class="chkOne" name="invoice_ids[]" value="<?= (int)$inv['id'] ?>" data-remaining="<?= (int)$remaining ?>" <?= $eligible? '' : 'disabled' ?> />
+            </td>
             <td>#<?= (int)$inv['id'] ?></td>
             <td><?= e(strtoupper(str_replace('_',' ',$inv['type']))) ?></td>
             <td><?= e($inv['period']) ?></td>
@@ -82,16 +99,26 @@ require_once BASE_PATH.'/src/includes/header.php';
             </td>
           </tr>
         <?php endforeach; endif; ?>
-        </tbody>
-      </table>
-    </div>
+          </tbody>
+        </table>
+      </div>
 
     <!-- Mobile Card List -->
     <div class="invoice-mobile-list">
       <?php if(!$rows): ?>
         <div class="invoice-entry-mobile" style="text-align:center;color:#777;font-size:12px">Belum ada tagihan.</div>
       <?php else: foreach($rows as $inv): ?>
+        <?php 
+          $remaining = max(0, (float)$inv['amount'] - (float)$inv['paid_amount']);
+          $eligible = ($remaining > 0) && !in_array($inv['status'], ['canceled','paid'], true);
+        ?>
         <div class="invoice-entry-mobile">
+          <div class="im-bulk" style="display:none">
+            <label style="display:flex;gap:8px;align-items:center;font-size:13px">
+              <input type="checkbox" class="chkOne" name="invoice_ids[]" value="<?= (int)$inv['id'] ?>" data-remaining="<?= (int)$remaining ?>" <?= $eligible? '' : 'disabled' ?> />
+              <span>Pilih tagihan ini</span>
+            </label>
+          </div>
           <div class="im-id">#<?= (int)$inv['id'] ?></div>
           <div class="im-row">
             <span class="im-label">Jenis</span>
@@ -123,6 +150,25 @@ require_once BASE_PATH.'/src/includes/header.php';
         </div>
       <?php endforeach; endif; ?>
     </div>
+    
+    <!-- Bulk action bar / controls -->
+    <div class="bulk-controls" style="margin-top:12px;display:flex;flex-direction:column;gap:8px">
+      <div>
+        <button type="button" id="btnBulkToggle" class="btn-action outline">Bayar Sekaligus</button>
+      </div>
+      <div id="bulkBar" style="display:none;position:sticky;bottom:8px;background:#f6f8f6;border:1px solid #dfe6db;border-radius:10px;padding:10px 12px;box-shadow:0 1px 2px rgba(0,0,0,.04)">
+        <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between">
+          <div style="font-size:13px;color:#333">
+            Dipilih: <b><span id="bulkCount">0</span></b> tagihan · Total: <b>Rp <span id="bulkTotal">0</span></b>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button type="button" id="btnBulkCancel" class="btn-action">Batal</button>
+            <button type="submit" id="btnBulkPay" class="btn-action primary" disabled>Bayar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    </form>
     <?php if($totalPages>1): ?>
       <nav class="page-nav" aria-label="Navigasi halaman">
         <span class="current">Hal <?= $page ?>/<?= $totalPages ?></span>
@@ -132,4 +178,5 @@ require_once BASE_PATH.'/src/includes/header.php';
     <?php endif; ?>
   </div>
 </div>
+<script src="../assets/js/invoice_bulk.js?v=20250913a" defer></script>
 <?php require_once BASE_PATH.'/src/includes/footer.php'; ?>

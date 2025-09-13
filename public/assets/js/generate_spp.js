@@ -65,8 +65,8 @@
   let lastReq=0; let t=null;
   function preview(){
     const y=year.value; const curType=typeSel?typeSel.value:'spp';
-  const m = (curType==='spp' || curType==='beasiswa') ? month.value : '';
-  if(!y || ((curType==='spp' || curType==='beasiswa') && !m)){ if(pvStatus) pvStatus.textContent='Periode belum lengkap'; return;}
+  const m = (curType==='spp') ? month.value : '';
+  if(!y || ((curType==='spp') && !m)){ if(pvStatus) pvStatus.textContent='Periode belum lengkap'; return;}
     const started=++lastReq; if(pvStatus) pvStatus.textContent='Memuat...';
     const url = `generate_spp.php?preview=1&type=${encodeURIComponent(curType)}&year=${encodeURIComponent(y)}&month=${encodeURIComponent(m||'')}`;
     fetch(url,{headers:{'Accept':'application/json'}})
@@ -87,12 +87,12 @@
       .catch(()=>{ if(started!==lastReq) return; if(pvStatus) pvStatus.textContent='Gagal ambil preview'; btnGen.disabled=false; });
   }
   function schedule(){ if(t) clearTimeout(t); t=setTimeout(preview,250); }
-  year.addEventListener('change',()=>{ if(autoEnd.checked && (typeSel.value==='spp'||typeSel.value==='beasiswa')) setEndMonth(); schedule(); });
-  if(month) month.addEventListener('change',()=>{ if(autoEnd.checked && (typeSel.value==='spp'||typeSel.value==='beasiswa')) setEndMonth(); schedule(); });
+  year.addEventListener('change',()=>{ if(autoEnd.checked && (typeSel.value==='spp')) setEndMonth(); schedule(); });
+  if(month) month.addEventListener('change',()=>{ if(autoEnd.checked && (typeSel.value==='spp')) setEndMonth(); schedule(); });
   if(typeSel){
     typeSel.addEventListener('change',()=>{
       const t=typeSel.value;
-      if(t==='spp' || t==='beasiswa'){
+      if(t==='spp'){
         monthWrap.style.display='';
         month.setAttribute('required','required');
         if(autoEnd.checked) setEndMonth();
@@ -129,9 +129,9 @@
   if(typeSel && monthWrap && month){
     typeSel.addEventListener('change',()=>{
       const t=typeSel.value;
-      if(t==='spp' || t==='beasiswa'){ monthWrap.style.display=''; month.setAttribute('required','required'); if(autoEnd?.checked) setEndMonth(); }
+      if(t==='spp'){ monthWrap.style.display=''; month.setAttribute('required','required'); if(autoEnd?.checked) setEndMonth(); }
       else { monthWrap.style.display='none'; month.removeAttribute('required'); due.value = year.value+'-07-15'; }
     });
   }
-  if(autoEnd){ autoEnd.addEventListener('change',()=>{ if(autoEnd.checked && (!typeSel || typeSel.value==='spp' || typeSel.value==='beasiswa')) setEndMonth(); }); if(autoEnd.checked && (!typeSel || typeSel.value==='spp' || typeSel.value==='beasiswa')) setEndMonth(); }
+  if(autoEnd){ autoEnd.addEventListener('change',()=>{ if(autoEnd.checked && (!typeSel || typeSel.value==='spp')) setEndMonth(); }); if(autoEnd.checked && (!typeSel || typeSel.value==='spp')) setEndMonth(); }
 })();

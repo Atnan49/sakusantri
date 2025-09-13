@@ -63,11 +63,13 @@ if(!headers_sent()){
     } else { $fullTitle = $baseTitle; }
   ?>
   <title><?= e($fullTitle) ?></title>
-  <?php $fv = '?v='.$favVersion; ?>
-  <link rel="icon" type="image/png" sizes="32x32" href="<?= url($faviconRel).$fv ?>" />
-  <link rel="icon" type="image/png" sizes="16x16" href="<?= url($faviconRel).$fv ?>" />
-  <link rel="shortcut icon" href="<?= url($faviconRel).$fv ?>" />
-  <link rel="apple-touch-icon" href="<?= url($faviconRel).$fv ?>" />
+  <?php $fv = '?v='.$favVersion; $fv2 = $fv.'&v2=20250913a'; ?>
+  <link rel="icon" type="image/png" sizes="32x32" href="<?= abs_url($faviconRel).$fv2 ?>" />
+  <link rel="icon" type="image/png" sizes="16x16" href="<?= abs_url($faviconRel).$fv2 ?>" />
+  <link rel="shortcut icon" href="<?= abs_url($faviconRel).$fv2 ?>" />
+  <link rel="apple-touch-icon" href="<?= abs_url($faviconRel).$fv2 ?>" />
+  <!-- Extra absolute icon to defeat aggressive caches on some setups -->
+  <link rel="icon" sizes="any" href="<?= abs_url($faviconRel).$fv2 ?>" />
   <?php if(file_exists(BASE_PATH.'/public/'.$icoCandidate)): ?>
     <link rel="icon" type="image/x-icon" href="<?= url($icoCandidate).$fv ?>" />
   <?php endif; ?>
@@ -83,7 +85,7 @@ if(!headers_sent()){
   <link rel="stylesheet" href="<?php echo url('assets/css/mobile-app.css'); ?>?v=20250906b" media="(max-width: 860px)">
   <?php endif; ?>
   <!-- UI overrides loaded last to safely refine base styles -->
-  <link rel="stylesheet" href="<?php echo url('assets/css/override.css'); ?>?v=20250906i">
+  <link rel="stylesheet" href="<?php echo url('assets/css/override.css'); ?>?v=20250913a">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,500,0,0" />
   <meta name="application-name" content="Saku Santri" />
   <meta name="apple-mobile-web-app-title" content="Saku Santri" />

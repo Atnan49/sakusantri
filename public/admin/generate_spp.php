@@ -6,7 +6,7 @@ require_once BASE_PATH.'/src/includes/payments.php';
 $pesan=$err=null;
 // Jenis tagihan: spp (default) atau daftar_ulang
 $type = isset($_POST['type']) ? preg_replace('/[^a-z_]/','', strtolower($_POST['type'])) : (isset($_GET['type'])?preg_replace('/[^a-z_]/','',strtolower($_GET['type'])):'spp');
-if(!in_array($type,['spp','daftar_ulang','beasiswa'],true)) $type='spp';
+if(!in_array($type,['spp','daftar_ulang'],true)) $type='spp';
 // Preview endpoint
 if(isset($_GET['preview']) && $_GET['preview']=='1'){
   header('Content-Type: application/json; charset=utf-8');
@@ -26,13 +26,6 @@ if(isset($_GET['preview']) && $_GET['preview']=='1'){
       if($st=mysqli_prepare($conn,'SELECT COUNT(DISTINCT user_id) c FROM invoice WHERE type="daftar_ulang" AND period=?')){ mysqli_stmt_bind_param($st,'s',$period); mysqli_stmt_execute($st); $r=mysqli_stmt_get_result($st); if($r && ($rw=mysqli_fetch_assoc($r))) $existing=(int)$rw['c']; }
       $resp=['ok'=>true,'period'=>$period,'total_wali'=>$totalWali,'sudah_ada'=>$existing,'akan_dibuat'=>max(0,$totalWali-$existing)];
     }
-  } else { // beasiswa behaves like SPP (year+month)
-    if(strlen($y)===4 && (int)$m>=1 && (int)$m<=12){
-      $period=$y.str_pad($m,2,'0',STR_PAD_LEFT); $totalWali=0; $existing=0;
-      if($rs=mysqli_query($conn,"SELECT COUNT(id) c FROM users WHERE role='wali_santri'")){ $totalWali=(int)(mysqli_fetch_assoc($rs)['c']??0); }
-      if($st=mysqli_prepare($conn,'SELECT COUNT(DISTINCT user_id) c FROM invoice WHERE type="beasiswa" AND period=?')){ mysqli_stmt_bind_param($st,'s',$period); mysqli_stmt_execute($st); $r=mysqli_stmt_get_result($st); if($r && ($rw=mysqli_fetch_assoc($r))) $existing=(int)$rw['c']; }
-      $resp=['ok'=>true,'period'=>$period,'total_wali'=>$totalWali,'sudah_ada'=>$existing,'akan_dibuat'=>max(0,$totalWali-$existing)];
-    }
   }
   echo json_encode($resp, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES); exit;
 }
@@ -49,7 +42,7 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
   elseif(isset($_POST['mode']) && $_POST['mode']==='single'){
     $nisn = preg_replace('/[^A-Za-z0-9_-]/','', (string)($_POST['nisn'] ?? ''));
     // period validation
-  if(in_array($type,['spp','beasiswa'],true) && !preg_match('/^[0-9]{6}$/',$period)) $err='Pilih Tahun & Bulan';
+  if($type==='spp' && !preg_match('/^[0-9]{6}$/',$period)) $err='Pilih Tahun & Bulan';
   elseif($type==='daftar_ulang' && !preg_match('/^[0-9]{6}$/',$period)) $err='Pilih Tahun & Bulan';
     else {
   // Resolve user by NIS only (field name still 'nisn')
@@ -64,9 +57,6 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
         } else if($type==='daftar_ulang') {
           $res = invoice_generate_daftar_ulang_single($conn,$targetId,$period,$amount,$due);
           $pesan = 'Generate Daftar Ulang untuk user #'.$targetId.' periode '.$period.' selesai. Dibuat: '.$res['created'].', Skip: '.$res['skipped'].($res['invoice_id']?(' (ID #'.$res['invoice_id'].')'):'');
-        } else {
-          $res = invoice_generate_beasiswa_single($conn,$targetId,$period,$amount,$due);
-          $pesan = 'Generate Beasiswa untuk user #'.$targetId.' periode '.$period.' selesai. Dibuat: '.$res['created'].', Skip: '.$res['skipped'].($res['invoice_id']?(' (ID #'.$res['invoice_id'].')'):'');
         }
       }
     }
@@ -74,7 +64,7 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
   // Bulk branch (default)
   else {
     if($due_date && !preg_match('/^\d{4}-\d{2}-\d{2}$/',$due_date)) $due_date='';
-  if(in_array($type,['spp','beasiswa'],true) && !preg_match('/^[0-9]{6}$/',$period)){ $err='Pilih Tahun & Bulan'; }
+  if($type==='spp' && !preg_match('/^[0-9]{6}$/',$period)){ $err='Pilih Tahun & Bulan'; }
   elseif($type==='daftar_ulang' && !preg_match('/^[0-9]{6}$/',$period)){ $err='Pilih Tahun & Bulan'; }
     else {
     if($type==='spp'){
@@ -83,8 +73,6 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
     } else if($type==='daftar_ulang') {
       $res=invoice_generate_daftar_ulang_bulk($conn,$period,$amount,$due_date?:null);
       $pesan='Generate Daftar Ulang '.$period.' selesai. Dibuat: '.$res['created'].', Skip: '.$res['skipped'];
-    } else {
-      $pesan='Belum mendukung bulk Beasiswa.';
     }
     // Optional force update nominal existing pending invoices
     if(isset($_POST['force_update']) && $_POST['force_update']=='1' && $amount>0){
@@ -92,8 +80,6 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
         @mysqli_query($conn, "UPDATE invoice SET amount=".(float)$amount." WHERE type='spp' AND period='".mysqli_real_escape_string($conn,$period)."' AND status='pending'");
       } else if($type==='daftar_ulang') {
         @mysqli_query($conn, "UPDATE invoice SET amount=".(float)$amount." WHERE type='daftar_ulang' AND period='".mysqli_real_escape_string($conn,$period)."' AND status='pending'");
-      } else {
-        @mysqli_query($conn, "UPDATE invoice SET amount=".(float)$amount." WHERE type='beasiswa' AND period='".mysqli_real_escape_string($conn,$period)."' AND status='pending'");
       }
       $aff = mysqli_affected_rows($conn);
       if($aff>0) $pesan .= ' | Nominal diperbarui pada '.$aff.' invoice pending.';
@@ -141,7 +127,6 @@ require_once __DIR__.'/../../src/includes/header.php';
             <select name="type" id="typeSel">
               <option value="spp" <?= $type==='spp'?'selected':'' ?>>SPP</option>
               <option value="daftar_ulang" <?= $type==='daftar_ulang'?'selected':'' ?>>Daftar Ulang</option>
-                <option value="beasiswa" <?= $type==='beasiswa'?'selected':'' ?>>Beasiswa</option>
             </select>
           </div>
           <div class="row">
@@ -194,7 +179,6 @@ require_once __DIR__.'/../../src/includes/header.php';
             <select name="type" id="typeSelSingle">
               <option value="spp">SPP</option>
               <option value="daftar_ulang">Daftar Ulang</option>
-              <option value="beasiswa">Beasiswa</option>
             </select>
           </div>
           <div class="row">
@@ -233,8 +217,8 @@ require_once __DIR__.'/../../src/includes/header.php';
     </div>
   </div>
   <div class="panel recent-invoices">
-  <div class="panel-header"><h2>Invoice <?= $type==='spp'?'SPP':($type==='daftar_ulang'?'Daftar Ulang':'Beasiswa') ?> Terbaru</h2></div>
-  <?php $recent=[]; $rs=mysqli_query($conn,"SELECT id,user_id,type,period,amount,status,created_at FROM invoice WHERE type='".($type==='spp'?'spp':($type==='daftar_ulang'?'daftar_ulang':'beasiswa'))."' ORDER BY id DESC LIMIT 30"); while($rs && $r=mysqli_fetch_assoc($rs)) $recent[]=$r; ?>
+  <div class="panel-header"><h2>Invoice <?= $type==='spp'?'SPP':'Daftar Ulang' ?> Terbaru</h2></div>
+  <?php $recent=[]; $rs=mysqli_query($conn,"SELECT id,user_id,type,period,amount,status,created_at FROM invoice WHERE type='".($type==='spp'?'spp':'daftar_ulang')."' ORDER BY id DESC LIMIT 30"); while($rs && $r=mysqli_fetch_assoc($rs)) $recent[]=$r; ?>
   <div class="table-wrap"><table class="table mini-table" style="min-width:780px"><thead><tr><th>ID</th><th>Periode</th><th>Jumlah</th><th>Status</th><th>Dibuat</th><th>Aksi</th></tr></thead><tbody><?php if($recent){ foreach($recent as $r){ ?><tr><td>#<?= (int)$r['id'] ?></td><td><?= e($r['period']??'-') ?></td><td>Rp <?= number_format((float)$r['amount'],0,',','.') ?></td><td><span class="status-<?= e($r['status']) ?>"><?= e($r['status']) ?></span></td><td><?= $r['created_at']?date('d M Y H:i',strtotime($r['created_at'])):'-' ?></td><td><a class="btn-detail" href="invoice_detail.php?id=<?= (int)$r['id'] ?>">Detail</a></td></tr><?php } } else { ?><tr><td colspan="6" style="text-align:center;color:#777;font-size:13px">Belum ada invoice <?= $type==='spp'?'SPP':($type==='daftar_ulang'?'Daftar Ulang':'Beasiswa') ?>.</td></tr><?php } ?></tbody></table></div>
   </div>
 </div>

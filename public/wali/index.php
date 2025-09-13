@@ -88,7 +88,7 @@ require_once __DIR__ . '/../../src/includes/header.php';
             if($res){ $unreadCount = (int) (mysqli_fetch_assoc($res)['c'] ?? 0); }
         }
         if($unreadCount > 0): ?>
-            <div class="alert info" style="margin-bottom:16px;max-width:420px">Anda memiliki <strong><?php echo $unreadCount; ?></strong> notifikasi belum dibaca. <a href="<?php echo url('wali/notifikasi'); ?>">Lihat</a></div>
+            <div class="alert info" style="margin-bottom:16px;max-width:420px">Anda memiliki <strong><?php echo $unreadCount; ?></strong> notifikasi belum dibaca. <a href="<?php echo url('wali/notifikasi.php'); ?>">Lihat</a></div>
     <?php endif; ?>
     <div class="topup-queue-wrapper">
         <div class="topup-queue-grid">

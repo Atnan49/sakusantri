@@ -80,7 +80,8 @@ if($_SERVER['REQUEST_METHOD']==='POST' && ($_POST['aksi']??'')==='simpan_beasisw
         if(empty($pesan_error)){
           require_once BASE_PATH.'/src/includes/payments.php';
           $recalcYear = $year !== null ? $year : (int)date('Y');
-          if(function_exists('spp_recalc_user_for_year')){ $res = spp_recalc_user_for_year($conn,$id,$recalcYear); if(isset($res['updated'])){ $pesan .= ' | Recalc '.$recalcYear.': '.$res['updated'].' diupdate, '.$res['skipped'].' dilewati.'; } }
+          if(function_exists('spp_recalc_user_for_year')){ $res = spp_recalc_user_for_year($conn,$id,$recalcYear); if(isset($res['updated'])){ $pesan .= ' | Recalc SPP '.$recalcYear.': '.$res['updated'].' diupdate, '.$res['skipped'].' dilewati.'; } }
+          if(function_exists('daftar_ulang_recalc_user_for_year')){ $res2 = daftar_ulang_recalc_user_for_year($conn,$id,$recalcYear); if(isset($res2['updated'])){ $pesan .= ' | Recalc DU '.$recalcYear.': '.$res2['updated'].' diupdate, '.$res2['skipped'].' dilewati.'; } }
         }
       }
     }
@@ -103,7 +104,8 @@ if($_SERVER['REQUEST_METHOD']==='POST' && ($_POST['aksi']??'')==='cabut_beasiswa
         $disc=['type'=>null,'value'=>null,'until'=>null,'year'=>null];
         // Recalc revert for the selected year (pending/partial invoices only)
         require_once BASE_PATH.'/src/includes/payments.php';
-        if(function_exists('spp_recalc_user_for_year')){ $res = spp_recalc_user_for_year($conn,$id,$yearSel); if(isset($res['updated'])){ $pesan .= ' | Recalc '.$yearSel.': '.$res['updated'].' diupdate, '.$res['skipped'].' dilewati.'; } }
+  if(function_exists('spp_recalc_user_for_year')){ $res = spp_recalc_user_for_year($conn,$id,$yearSel); if(isset($res['updated'])){ $pesan .= ' | Recalc SPP '.$yearSel.': '.$res['updated'].' diupdate, '.$res['skipped'].' dilewati.'; } }
+  if(function_exists('daftar_ulang_recalc_user_for_year')){ $res2 = daftar_ulang_recalc_user_for_year($conn,$id,$yearSel); if(isset($res2['updated'])){ $pesan .= ' | Recalc DU '.$yearSel.': '.$res2['updated'].' diupdate, '.$res2['skipped'].' dilewati.'; } }
       } else {
         $pesan_error='Gagal mencabut beasiswa.';
       }

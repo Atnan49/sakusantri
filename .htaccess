@@ -1,30 +1,14 @@
 RewriteEngine On
+# Force root-level favicon requests to use project brand icon
+RewriteRule ^favicon\.ico$ /sakusantri/public/assets/img/logo.png [L]
+RewriteRule ^favicon\.png$ /sakusantri/public/assets/img/logo.png [L]
+RewriteRule ^apple-touch-icon(.*)\.png$ /sakusantri/public/assets/img/logo.png [L]
+RewriteRule ^android-chrome-(.*)\.png$ /sakusantri/public/assets/img/logo.png [L]
 
-# --- Canonicalization (skip on localhost/private IPs) ---
-RewriteCond %{HTTP_HOST} !^localhost(:\d+)?$ [NC]
-RewriteCond %{HTTP_HOST} !^127\.0\.0\.1(:\d+)?$ [NC]
-RewriteCond %{HTTP_HOST} !^192\.168\..+$ [NC]
-RewriteCond %{HTTP_HOST} !^10\..+$ [NC]
-# Tambah pengecualian IP private kelas B 172.16.0.0 - 172.31.255.255 (RFC1918)
-RewriteCond %{HTTP_HOST} !^172\.(1[6-9]|2[0-9]|3[0-1])\..+$ [NC]
-
-# Force HTTPS (consider reverse proxy)
-RewriteCond %{HTTPS} !=on
-RewriteCond %{HTTP:X-Forwarded-Proto} !https [NC]
-RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
-
-# Remove leading www.
-RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
-RewriteRule ^ https://%1%{REQUEST_URI} [L,R=301]
-
-# --- App routing ---
-# Jika path mengarah ke file / dir yang ada di root, layani langsung
-RewriteCond %{REQUEST_FILENAME} -f [OR]
-RewriteCond %{REQUEST_FILENAME} -d
-RewriteRule ^ - [L]
-
-# Jika sudah di public, biarkan (file statis / direct include)
+# Short-circuit if already under /public to avoid loops
 RewriteRule ^public/ - [L]
 
-# Route semua request aplikasi lain ke public/ path yang sama agar aturan spesifik di public/.htaccess tetap berlaku (login, admin, dll)
+# Route everything else into /public unless it is a real file/dir
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ public/$1 [L,QSA]

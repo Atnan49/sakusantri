@@ -41,5 +41,17 @@ RewriteRule ^bukti/f/(.+)$ bukti_file.php?f=$1 [L]
 RewriteCond %{REQUEST_FILENAME} -f
 RewriteRule . - [L]
 
+# --- Favicon aliases: ensure brand icon is used instead of XAMPP default ---
+# Map common icon paths to our brand logo (root)
+RewriteRule ^favicon\.ico$ assets/img/logo.png [L]
+RewriteRule ^favicon\.png$ assets/img/logo.png [L]
+RewriteRule ^apple-touch-icon(.*)\.png$ assets/img/logo.png [L]
+RewriteRule ^android-chrome-(.*)\.png$ assets/img/logo.png [L]
+# Also catch admin-scoped requests like /admin/favicon.ico
+RewriteRule ^admin/favicon\.ico$ assets/img/logo.png [L]
+RewriteRule ^admin/favicon\.png$ assets/img/logo.png [L]
+RewriteRule ^admin/apple-touch-icon(.*)\.png$ assets/img/logo.png [L]
+RewriteRule ^admin/android-chrome-(.*)\.png$ assets/img/logo.png [L]
+
 # Otherwise route to index
 RewriteRule . index.php [L]

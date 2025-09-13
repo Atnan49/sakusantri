@@ -70,6 +70,7 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
 if(isset($_GET['msg'])) $msg=$_GET['msg'];
 
 $progress = $inv['amount']>0 ? min(100, round(($inv['paid_amount']/$inv['amount'])*100)) : 0;
+$remaining = max(0, (float)$inv['amount'] - (float)$inv['paid_amount']);
 function human_status_local($s){
   switch($s){
     case 'pending': return 'Belum Dibayar';
@@ -106,23 +107,28 @@ require_once BASE_PATH.'/src/includes/header.php';
         <div class="pay-instr panel-lite">
           <h3 class="instr-title">Instruksi Pembayaran SPP</h3>
           <div class="bank-label"><b>Transfer ke Rekening Pondok:</b></div>
-          <div class="bank-info"><b>Bank BSI 1234567890 a.n. Pondok Pesantren Contoh</b></div>
+          <div class="bank-info"><b><span id="bankText">Bank BSI 1234567890 a.n. Pondok Pesantren Contoh</span></b>
+            <button type="button" class="copy-btn" data-target="bankText">Salin</button>
+          </div>
+          <div class="money-line">Nominal yang harus ditransfer: <b id="amountText">Rp <?= number_format($remaining,0,',','.') ?></b>
+            <button type="button" class="copy-btn" data-target="amountText">Salin</button>
+          </div>
           <div class="instr-text">Silakan transfer sesuai nominal tagihan ke rekening di atas. Setelah transfer, upload bukti pembayaran di bawah ini.</div>
           <ul class="instr-list">
             <li>Pastikan nominal transfer sesuai tagihan.</li>
             <li>Upload bukti transfer yang jelas (jpg/png/pdf).</li>
             <li>Admin akan memverifikasi pembayaran Anda.</li>
           </ul>
-          <?php if(!$payments): ?>
+          <?php if(!$payments && $remaining > 0): ?>
             <form method="post" enctype="multipart/form-data" class="pay-form" id="bayarForm">
               <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
               <input type="hidden" name="do" value="bayar_spp_upload">
-              <input type="hidden" name="amount" value="<?= (int)$inv['amount'] ?>">
+              <input type="hidden" name="amount" value="<?= (int)$remaining ?>">
               <div class="file-field">
                 <label>Upload Bukti Transfer (jpg/png/pdf)</label>
                 <input type="file" name="bukti_bayar" id="buktiInput" accept="image/*,.pdf" required>
               </div>
-              <button class="btn-action primary" id="btnBayarSpp" disabled>Bayar SPP</button>
+              <button class="btn-action primary" id="btnBayarSpp" disabled>Bayar SPP (Rp <?= number_format($remaining,0,',','.') ?>)</button>
             </form>
             <script src="../assets/js/invoice_detail.js" defer></script>
           <?php endif; ?>
@@ -139,7 +145,7 @@ require_once BASE_PATH.'/src/includes/header.php';
       <table class="table" style="min-width:620px">
   <thead><tr><th>ID</th><th>Method</th><th>Amount</th><th>Status</th><th>Dibuat</th><th>Bukti</th></tr></thead>
         <tbody>
-          <?php if(!$payments): ?><tr><td colspan="5" style="text-align:center;font-size:12px;color:#777">Belum ada payment.</td></tr><?php else: foreach($payments as $p): ?>
+          <?php if(!$payments): ?><tr><td colspan="6" style="text-align:center;font-size:12px;color:#777">Belum ada payment.</td></tr><?php else: foreach($payments as $p): ?>
             <tr>
               <td>#<?= (int)$p['id'] ?></td>
               <td><?= e($p['method']) ?></td>

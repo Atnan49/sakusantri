@@ -163,7 +163,12 @@ if(!function_exists('invoice_generate_daftar_ulang_bulk')){
       $id=(int)$u['id'];
       $chk = mysqli_prepare($conn,'SELECT id FROM invoice WHERE user_id=? AND type="daftar_ulang" AND period=? LIMIT 1');
       if($chk){ mysqli_stmt_bind_param($chk,'is',$id,$period); mysqli_stmt_execute($chk); $r=mysqli_stmt_get_result($chk); if($r && mysqli_fetch_row($r)){ $skipped++; continue; } }
-      $iid = invoice_create($conn,$id,'daftar_ulang',$period,$amount,$dueDate,'Tagihan Daftar Ulang '.$period);
+      // Terapkan beasiswa (diskon) bila ada, berdasarkan tahun pada period (YYYYMM)
+      $noteExtra='';
+      $finalAmt = _apply_spp_discount_for_period($conn,$id,$period,$amount,$noteExtra);
+      $notes = 'Tagihan Daftar Ulang '.$period.($noteExtra?(' '.$noteExtra):'');
+      $iid = invoice_create($conn,$id,'daftar_ulang',$period,$finalAmt,$dueDate,$notes);
+      if($iid){ invoice_set_meta_fields($conn,$iid,[ 'base_amount'=>$amount, 'disc_note'=>$noteExtra ]); }
       if($iid){ $created++; } else { $skipped++; }
     }
     return ['created'=>$created,'skipped'=>$skipped];
@@ -201,7 +206,12 @@ if(!function_exists('invoice_generate_daftar_ulang_single')){
     $due = $dueDate ?: ($year.'-'.$month.'-15');
     $chk = mysqli_prepare($conn,'SELECT id FROM invoice WHERE user_id=? AND type="daftar_ulang" AND period=? LIMIT 1');
     if($chk){ mysqli_stmt_bind_param($chk,'is',$userId,$period); mysqli_stmt_execute($chk); $r=mysqli_stmt_get_result($chk); if($r && mysqli_fetch_row($r)) return ['created'=>0,'skipped'=>1,'invoice_id'=>null]; }
-    $iid = invoice_create($conn,$userId,'daftar_ulang',$period,$amount,$due,'Tagihan Daftar Ulang '.$period);
+    // Terapkan beasiswa (diskon) bila ada, berdasarkan tahun pada period (YYYYMM)
+    $noteExtra='';
+    $finalAmt = _apply_spp_discount_for_period($conn,$userId,$period,$amount,$noteExtra);
+    $notes = 'Tagihan Daftar Ulang '.$period.($noteExtra?(' '.$noteExtra):'');
+    $iid = invoice_create($conn,$userId,'daftar_ulang',$period,$finalAmt,$due,$notes);
+    if($iid){ invoice_set_meta_fields($conn,$iid,[ 'base_amount'=>$amount, 'disc_note'=>$noteExtra ]); }
     return ['created'=>$iid?1:0,'skipped'=>$iid?0:1,'invoice_id'=>$iid];
   }
 }
@@ -373,6 +383,28 @@ if(!function_exists('spp_recalc_user_for_year')){
     mysqli_stmt_bind_param($q,'is',$userId,$yPrefix); mysqli_stmt_execute($q); $rs=mysqli_stmt_get_result($q);
     while($rs && ($row=mysqli_fetch_assoc($rs))){
       $id=(int)$row['id']; $status=$row['status']; if(!in_array($status,['pending','partial'],true)){ $skipped++; continue; }
+      $period=trim((string)$row['period']); $meta=json_decode($row['meta_json']??'',true);
+      $base = (isset($meta['base_amount']) && is_numeric($meta['base_amount'])) ? (float)$meta['base_amount'] : (float)$row['amount'];
+      $noteExtra=''; $newAmt=_apply_spp_discount_for_period($conn,$userId,$period,$base,$noteExtra);
+      $curAmt=(float)$row['amount']; if(abs($newAmt-$curAmt) < 0.01){ $skipped++; continue; }
+      $upd=mysqli_prepare($conn,'UPDATE invoice SET amount=?, updated_at=NOW() WHERE id=? LIMIT 1'); if(!$upd){ $skipped++; continue; }
+      mysqli_stmt_bind_param($upd,'di',$newAmt,$id); if(mysqli_stmt_execute($upd)){ $updated++; $affected[]=$id; invoice_set_meta_fields($conn,$id,['disc_note'=>$noteExtra,'base_amount'=>$base]); }
+    }
+    return ['updated'=>$updated,'skipped'=>$skipped,'ids'=>$affected];
+  }
+}
+
+// Recalculate Daftar Ulang invoice amounts for a user in a given year based on current beasiswa settings
+if(!function_exists('daftar_ulang_recalc_user_for_year')){
+  function daftar_ulang_recalc_user_for_year(mysqli $conn,int $userId,int $year): array {
+    $updated=0; $skipped=0; $affected=[];
+    $y = (int)$year; if($y<2000 || $y>3000) return ['updated'=>0,'skipped'=>0];
+    $yPrefix = (string)$y;
+    $q = mysqli_prepare($conn, "SELECT id, period, amount, paid_amount, status, meta_json FROM invoice WHERE user_id=? AND type='daftar_ulang' AND period LIKE CONCAT(?, '%')");
+    if(!$q) return ['updated'=>0,'skipped'=>0];
+    mysqli_stmt_bind_param($q,'is',$userId,$yPrefix); mysqli_stmt_execute($q); $rs=mysqli_stmt_get_result($q);
+    while($rs && ($row=mysqli_fetch_assoc($rs))){
+      $id=(int)$row["id"]; $status=$row['status']; if(!in_array($status,['pending','partial'],true)){ $skipped++; continue; }
       $period=trim((string)$row['period']); $meta=json_decode($row['meta_json']??'',true);
       $base = (isset($meta['base_amount']) && is_numeric($meta['base_amount'])) ? (float)$meta['base_amount'] : (float)$row['amount'];
       $noteExtra=''; $newAmt=_apply_spp_discount_for_period($conn,$userId,$period,$base,$noteExtra);

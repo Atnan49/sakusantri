@@ -394,4 +394,58 @@ body.menu-open .main-menu{box-shadow:0 6px 22px -8px rgba(0,0,0,.5)}
   .recent-periods .c,.recent-periods .amt{text-align:left;opacity:.9}
 }
 
+/* === Wali: Invoice Detail – Desktop Layout === */
+.invoice-detail-page{max-width:min(92vw, 1400px);margin-inline:auto}
+.invoice-detail-page h1{font-size:30px;font-weight:800;letter-spacing:.4px}
+.invoice-detail-card{background:#fff;border:1px solid var(--border);border-radius:18px;padding:26px 30px;box-shadow:var(--shadow-sm)}
+.invoice-detail-card .inv-flex{display:flex;flex-direction:row;align-items:flex-start;gap:34px}
+.invoice-detail-card .inv-section{background:var(--surface-alt);border:1px solid var(--border-soft);border-radius:14px;padding:18px 20px}
+.invoice-detail-card .inv-section.detail{flex:1 1 44%}
+.invoice-detail-card .inv-section.progress{flex:1 1 56%}
+.invoice-detail-card .sec-title{margin:0 0 12px;font-size:16px;font-weight:800;letter-spacing:.4px;color:var(--carob)}
+.invoice-detail-card .meta-line{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:10px 0;border-bottom:1px solid var(--border)}
+.invoice-detail-card .meta-line:last-child{border-bottom:0}
+.invoice-detail-card .meta-line span{font-size:12px;font-weight:700;color:#666;letter-spacing:.4px;text-transform:uppercase}
+.invoice-detail-card .meta-line b{font-size:14px;color:#111}
+
+/* Progress bar refinement */
+.invoice-detail-card .progress-bar{position:relative;height:12px;background:#eee;border:1px solid var(--border);border-radius:999px;overflow:hidden}
+.invoice-detail-card .progress-bar .bar-fill{height:100%;background:linear-gradient(90deg,#6bbf73,#4e9764);box-shadow:inset 0 0 6px rgba(0,0,0,.12)}
+.invoice-detail-card .progress-info{margin-top:8px;font-size:12px;font-weight:700;color:#333}
+
+/* Payment instruction panel */
+.pay-instr.panel-lite{background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px 18px 16px;box-shadow:var(--shadow-sm)}
+.pay-instr .instr-title{margin:0 0 8px;font-size:15px;font-weight:800;letter-spacing:.4px;color:#1a1d18}
+.pay-instr .bank-label{font-size:12px;font-weight:700;color:#444}
+.pay-instr .bank-info{font-size:14px;font-weight:800;color:#111;margin:4px 0 8px}
+.pay-instr .instr-text{font-size:13px;color:#333;margin:6px 0 6px}
+.pay-instr .instr-list{margin:8px 0 12px;padding-left:18px;font-size:13px;color:#333}
+.pay-instr .money-line{margin:8px 0 6px;font-size:14px;color:#1a1a1a}
+.pay-instr .copy-btn{margin-left:8px;padding:2px 8px;font-size:11px;border:1px solid #ccc;border-radius:6px;background:#fff;color:#333;cursor:pointer}
+.pay-instr .copy-btn:hover{background:#f2f2f2}
+.pay-instr .instr-list li{margin:4px 0}
+
+/* Upload form styling */
+.pay-form{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px}
+.pay-form .file-field{display:flex;flex-direction:column;gap:6px;min-width:260px;flex:1}
+.pay-form .file-field label{font-size:11px;font-weight:700;letter-spacing:.5px;color:#666}
+.pay-form input[type=file]{background:#fff;border:1px solid var(--border);border-radius:12px;padding:8px 10px;font-size:13px}
+.pay-form .btn-action.primary{height:42px;padding:0 22px;border-radius:12px;font-weight:800}
+
+/* Payments table card */
+.invoice-detail-page .panel{background:#fff;border:1px solid var(--border);border-radius:16px;padding:18px 20px;box-shadow:var(--shadow-sm)}
+.invoice-detail-page .table-wrap{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:#fff}
+.invoice-detail-page table.table thead th{background:var(--surface-alt)}
+
+/* Responsive fallback */
+@media (max-width:900px){
+  .invoice-detail-card .inv-flex{flex-direction:column}
+  .invoice-detail-card .inv-section{width:100%}
+}
+
+/* Ultra-wide guardrail for readability */
+@media (min-width:1600px){
+  .invoice-detail-page{max-width:1500px}
+}
+
 
