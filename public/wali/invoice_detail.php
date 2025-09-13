@@ -119,7 +119,7 @@ require_once BASE_PATH.'/src/includes/header.php';
             <li>Upload bukti transfer yang jelas (jpg/png/pdf).</li>
             <li>Admin akan memverifikasi pembayaran Anda.</li>
           </ul>
-          <?php if(!$payments && $remaining > 0): ?>
+          <?php if($remaining > 0): ?>
             <form method="post" enctype="multipart/form-data" class="pay-form" id="bayarForm">
               <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
               <input type="hidden" name="do" value="bayar_spp_upload">
@@ -130,7 +130,6 @@ require_once BASE_PATH.'/src/includes/header.php';
               </div>
               <button class="btn-action primary" id="btnBayarSpp" disabled>Bayar SPP (Rp <?= number_format($remaining,0,',','.') ?>)</button>
             </form>
-            <script src="../assets/js/invoice_detail.js" defer></script>
           <?php endif; ?>
         </div>
         <?php else: ?>
@@ -194,4 +193,5 @@ require_once BASE_PATH.'/src/includes/header.php';
     </ul>
   </div>
 </main>
+<script src="../assets/js/invoice_detail.js" defer></script>
 <?php require_once BASE_PATH.'/src/includes/footer.php'; ?>
