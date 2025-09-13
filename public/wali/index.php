@@ -31,9 +31,9 @@ if($stmt=mysqli_prepare($conn,"SELECT nama_santri FROM users WHERE id=?")){
 }
 $saldo = wallet_balance($conn,$user_id);
 
-// Jumlah invoice SPP belum lunas (pending/partial/overdue)
+// Jumlah tagihan belum lunas (SPP + Daftar Ulang): pending/partial/overdue
 $tagihan_spp = 0;
-if($st = mysqli_prepare($conn, "SELECT COUNT(id) c FROM invoice WHERE user_id=? AND type='spp' AND status IN ('pending','partial','overdue')")){
+if($st = mysqli_prepare($conn, "SELECT COUNT(id) c FROM invoice WHERE user_id=? AND type IN ('spp','daftar_ulang') AND status IN ('pending','partial','overdue')")){
     mysqli_stmt_bind_param($st,'i',$user_id);
     mysqli_stmt_execute($st);
     $rs = mysqli_stmt_get_result($st);
@@ -47,7 +47,8 @@ if($st = mysqli_prepare($conn, "SELECT id, amount, status, created_at FROM payme
     mysqli_stmt_bind_param($st,'i',$user_id); mysqli_stmt_execute($st); $rs = mysqli_stmt_get_result($st); while($row=mysqli_fetch_assoc($rs)){ $recent_topup[]=$row; } mysqli_stmt_close($st);
 }
 $recent_invoices = [];
-if($st = mysqli_prepare($conn, "SELECT id, period, amount, paid_amount, status, created_at FROM invoice WHERE user_id=? AND type='spp' ORDER BY id DESC LIMIT 10")){
+// Tampilkan tagihan terbaru untuk SPP dan Daftar Ulang
+if($st = mysqli_prepare($conn, "SELECT id, period, amount, paid_amount, status, created_at FROM invoice WHERE user_id=? AND type IN ('spp','daftar_ulang') ORDER BY id DESC LIMIT 10")){
     mysqli_stmt_bind_param($st,'i',$user_id); mysqli_stmt_execute($st); $rs = mysqli_stmt_get_result($st); while($row=mysqli_fetch_assoc($rs)){ $recent_invoices[]=$row; } mysqli_stmt_close($st);
 }
 
@@ -70,7 +71,7 @@ require_once __DIR__ . '/../../src/includes/header.php';
             <div class="wali-card-sub">Tabungan Santri</div>
         </div>
     <div class="wali-card spp-card" data-href="<?php echo url('wali/invoice'); ?>" style="cursor:pointer">
-            <div class="wali-card-head">Tagihan SPP</div>
+        <div class="wali-card-head">Tagihan</div>
             <div class="wali-card-value" style="color:#d97706"><?php echo $tagihan_spp; ?></div>
             <div class="wali-card-sub">Belum Dibayar</div>
         </div>
