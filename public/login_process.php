@@ -39,6 +39,7 @@ $rateWindow = 600; // 10 menit
 // Gunakan Redis jika tersedia, jika tidak fallback ke file
 $useRedis = false;
 $redisObj = null;
+$ipFile = null; // file path used when fallback storage is used
 if (class_exists('Redis')) {
     try {
         $redisClass = 'Redis';
@@ -121,8 +122,11 @@ if ($result && ($user = mysqli_fetch_assoc($result))) {
 
 // Gagal login (user tidak ditemukan atau password salah) -> pesan umum
 $_SESSION['login_attempts'] = ($_SESSION['login_attempts'] ?? 0) + 1;
-// Persist IP counter
-$ipData['c']++; @file_put_contents($ipFile,json_encode($ipData));
+// Persist IP counter when using file fallback; when using Redis, the incr already happened
+if(!$useRedis && $ipFile){
+    $ipData['c'] = (int)($ipData['c'] ?? 0) + 1;
+    @file_put_contents($ipFile, json_encode($ipData));
+}
 header('Location: ' . url('login?pesan=gagal'));
 exit();
 

@@ -1,14 +1,19 @@
 RewriteEngine On
-# Force root-level favicon requests to use project brand icon
-RewriteRule ^favicon\.ico$ /sakusantri/public/assets/img/logo.png [L]
-RewriteRule ^favicon\.png$ /sakusantri/public/assets/img/logo.png [L]
-RewriteRule ^apple-touch-icon(.*)\.png$ /sakusantri/public/assets/img/logo.png [L]
-RewriteRule ^android-chrome-(.*)\.png$ /sakusantri/public/assets/img/logo.png [L]
+
+# Security: deny access to dotfiles if the docroot is project root
+<FilesMatch "^\.">
+	Require all denied
+</FilesMatch>
+Options -Indexes
+
+# Favicon to brand icon without hard-coded base path (works regardless of folder name)
+RewriteRule ^favicon\.ico$ public/assets/img/logo.png [L]
+RewriteRule ^favicon\.png$ public/assets/img/logo.png [L]
+RewriteRule ^apple-touch-icon(.*)\.png$ public/assets/img/logo.png [L]
+RewriteRule ^android-chrome-(.*)\.png$ public/assets/img/logo.png [L]
 
 # Short-circuit if already under /public to avoid loops
 RewriteRule ^public/ - [L]
 
-# Route everything else into /public unless it is a real file/dir
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
+# Route EVERYTHING else into /public (even if a file exists at repo root) to prevent accidental exposure
 RewriteRule ^(.*)$ public/$1 [L,QSA]

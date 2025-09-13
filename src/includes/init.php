@@ -78,6 +78,22 @@ if (session_status() === PHP_SESSION_NONE) {
     ]);
     session_start();
 }
+// Configure error handling according to environment
+if (isset($APP_DEV) && $APP_DEV) {
+    // Development: verbose errors
+    @ini_set('display_errors', '1');
+    @ini_set('display_startup_errors', '1');
+    error_reporting(E_ALL);
+} else {
+    // Production: no display, log only
+    @ini_set('display_errors', '0');
+    @ini_set('display_startup_errors', '0');
+    error_reporting(E_ALL & ~E_NOTICE & ~E_STRICT & ~E_DEPRECATED);
+}
+// Default timezone (can be overridden via php.ini)
+if (function_exists('date_default_timezone_set')) {
+    @date_default_timezone_set('Asia/Jakarta');
+}
 // Core includes (pastikan file berikut ada di src/includes/)
 require_once BASE_PATH . '/src/includes/helpers.php';
 require_once BASE_PATH . '/src/includes/status.php';

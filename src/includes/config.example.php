@@ -39,3 +39,13 @@ if (!defined('GOOGLE_CLIENT_SECRET')) {
 }
 // Opsional: override redirect default otomatis
 // define('GOOGLE_REDIRECT_URI', 'https://domain-anda.com/google_callback.php');
+
+// --- Production Secrets (WAJIB diisi di hosting, JANGAN commit nilai asli) ---
+// Digunakan untuk mengamankan webhook gateway, endpoint cron, dan verifikasi integritas.
+// Ganti dengan string acak minimal 32 karakter.
+if (!defined('GATEWAY_SECRET')) { define('GATEWAY_SECRET', 'changeme_gateway_secret_32chars_or_more'); }
+if (!defined('CRON_SECRET')) { define('CRON_SECRET', 'changeme_cron_secret_32chars_or_more'); }
+if (!defined('INTEGRITY_KEY')) { define('INTEGRITY_KEY', 'changeme_integrity_key_32chars_or_more'); }
+
+// Opsional: aktifkan migrasi runtime otomatis (HANYA untuk DEV). Biarkan false di produksi.
+if (!defined('AUTO_MIGRATE_RUNTIME')) { define('AUTO_MIGRATE_RUNTIME', false); }

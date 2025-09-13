@@ -263,9 +263,11 @@ if(!function_exists('payment_initiate')){
       if(!$stmt) return null;
       mysqli_stmt_bind_param($stmt,'iisdss',$invoiceId,$userId,$method,$amount,$idempotencyKey,$note);
     }
-    if(!mysqli_stmt_execute($stmt)) {
-        die('MySQL error: ' . mysqli_error($conn));
-    }
+  if(!mysqli_stmt_execute($stmt)) {
+    // Avoid leaking DB error details to users; log instead.
+    error_log('payments.php: insert payment failed errno='.mysqli_errno($conn).' msg='.mysqli_error($conn));
+    return null;
+  }
     $pid = mysqli_insert_id($conn);
     payment_history_add($conn,$pid,null,'initiated',null,'init');
     return $pid ?: null;

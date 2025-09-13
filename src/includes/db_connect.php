@@ -188,6 +188,10 @@ function try_db_connect(array $hosts, $user, $pass, $db, bool $dev): mysqli
         // 2) Now try connect directly to target DB
         $conn = @mysqli_connect($h, $user, $pass, $db);
         if ($conn) {
+            // Set charset and sql_mode for consistent behavior
+            @mysqli_set_charset($conn, 'utf8mb4');
+            @mysqli_query($conn, "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci");
+            @mysqli_query($conn, "SET sql_mode=CONCAT(@@sql_mode, ',STRICT_TRANS_TABLES')");
             if(defined('AUTO_MIGRATE_RUNTIME') && AUTO_MIGRATE_RUNTIME){
                 ensure_schema($conn);
             } else {
@@ -211,6 +215,9 @@ function try_db_connect(array $hosts, $user, $pass, $db, bool $dev): mysqli
             @mysqli_close($serverConn2);
             $conn2 = @mysqli_connect($h, $user, $pass, $db);
             if ($conn2) {
+                @mysqli_set_charset($conn2, 'utf8mb4');
+                @mysqli_query($conn2, "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci");
+                @mysqli_query($conn2, "SET sql_mode=CONCAT(@@sql_mode, ',STRICT_TRANS_TABLES')");
                 if(defined('AUTO_MIGRATE_RUNTIME') && AUTO_MIGRATE_RUNTIME){
                     ensure_schema($conn2);
                 } else {
