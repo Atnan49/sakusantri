@@ -80,7 +80,7 @@ require_once __DIR__ . '/../../src/includes/header.php';
         <?php if($stage==='amount'): ?>
         <div class="panel topup-panel">
                 <h2 class="topup-h2">Masukkan Nominal</h2>
-                <p class="topup-transfer-note">Transfer terlebih dahulu ke rekening: <strong>Bank ABC 123456789 a.n. Pondok Pesantren</strong>. Setelah transfer klik Lanjut untuk mengunggah bukti.</p>
+                <p class="topup-transfer-note">Transfer terlebih dahulu ke rekening: <strong>BSI 664701012881537 a.n. RUMAH TAHFIDZ BAITUL</strong>. Setelah transfer klik Lanjut untuk mengunggah bukti.</p>
             <form method="post" class="topup-form" novalidate>
                 <label class="field">
                     <span>Jumlah Top-Up (Rp)</span>

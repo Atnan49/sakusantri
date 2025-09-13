@@ -100,7 +100,9 @@ require_once BASE_PATH.'/src/includes/header.php';
   </div>
   <div class="panel section">
     <h2>Upload Satu Bukti Pembayaran</h2>
-    <p style="margin-top:-6px;color:#555">Silakan transfer total sebesar <b>Rp <?= number_format($total,0,',','.') ?></b> ke rekening pondok, lalu upload satu bukti transfer. Admin akan memverifikasi dan melunasi tagihan terpilih.</p>
+    <div class="bank-label" style="margin-top:4px"><b>Transfer ke Rekening Pondok:</b></div>
+    <div class="bank-info" style="margin-bottom:6px"><b>BSI 664701012881537 a.n. RUMAH TAHFIDZ BAITUL</b></div>
+    <p style="margin-top:-2px;color:#555">Silakan transfer total sebesar <b>Rp <?= number_format($total,0,',','.') ?></b> ke rekening di atas, lalu upload satu bukti transfer. Admin akan memverifikasi dan melunasi tagihan terpilih.</p>
     <form method="post" enctype="multipart/form-data" style="display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end">
       <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>" />
       <?php foreach($ids as $id): ?>
