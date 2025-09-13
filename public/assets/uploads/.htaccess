@@ -1,3 +1,13 @@
+# Security hardening for assets uploads (if used)
+Options -Indexes
+
+<FilesMatch "\.(php|phar|phtml|pl|py|rb|cgi|sh|bat|ps1)$">
+    Require all denied
+</FilesMatch>
+
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
 # Allow direct access to image files, but deny PHP
 <FilesMatch "\.(php|phtml|php\d)$">
   Require all denied

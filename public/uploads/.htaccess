@@ -1,3 +1,15 @@
+# Security hardening for uploads directory
+Options -Indexes
+
+# Block execution of scripts in uploads
+<FilesMatch "\.(php|phar|phtml|pl|py|rb|cgi|sh|bat|ps1)$">
+    Require all denied
+</FilesMatch>
+
+# Prevent access to hidden files
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
 # Deny PHP execution inside uploads
 <FilesMatch "\.(php|php\d*|phtml)$">
   Require all denied
