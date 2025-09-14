@@ -1,0 +1,13 @@
+{
+  "name": "sakusantri/app",
+  "description": "Saku Santri web app",
+  "type": "project",
+  "require": {
+    "dompdf/dompdf": "^2.0"
+  },
+  "config": {
+    "platform": {
+      "php": "8.1"
+    }
+  }
+}
