@@ -105,34 +105,8 @@ require_once BASE_PATH.'/src/includes/header.php';
 
   <div class="panel section invoice-list">
   <div class="panel-header"><h2>Daftar Tagihan</h2></div>
-    <div class="panel-tools" style="display:flex;gap:8px;justify-content:flex-end;margin:8px 0 10px 0">
-      <a class="btn-action" href="report.php">Laporan (Pilih Periode)</a>
-    </div>
-    <?php 
-      // Build download links for PDF report based on current filters
-      $selYear = '';
-      $selMonth = '';
-      if($period){ $selYear = substr($period,0,4); if(strlen($period)===6){ $selMonth = substr($period,4,2); } }
-      if(!$selYear){ $selYear = date('Y'); }
-      if(!$selMonth){ $selMonth = date('m'); }
-      $dlMonthlyUrl = 'report_download.php?'.http_build_query([
-        'scope'=>'monthly',
-        'year'=>$selYear,
-        'month'=>$selMonth,
-        'type'=>$filter_type,
-        'status'=>$filter_status,
-      ]);
-      $dlYearlyUrl = 'report_download.php?'.http_build_query([
-        'scope'=>'yearly',
-        'year'=>$selYear,
-        'type'=>$filter_type,
-        'status'=>$filter_status,
-      ]);
-    ?>
-    <div class="panel-tools" style="display:flex;gap:8px;justify-content:flex-end;margin:8px 0 0 0">
-      <a class="btn-action" href="<?= e($dlMonthlyUrl) ?>" target="_blank" rel="noopener">Unduh PDF Bulanan</a>
-      <a class="btn-action outline" href="<?= e($dlYearlyUrl) ?>" target="_blank" rel="noopener">Unduh PDF Tahunan</a>
-    </div>
+    <!-- Fitur laporan PDF dihapus -->
+    <!-- Tombol unduh PDF bulanan/tahunan dihapus -->
     <?php 
       $fYear = substr($period,0,4); $fMonth = substr($period,4,2); 
       // Ambil distinct tahun dari invoice agar dropdown ringkas
