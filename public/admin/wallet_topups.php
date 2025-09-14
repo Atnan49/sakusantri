@@ -3,6 +3,7 @@ require_once __DIR__ . '/../../src/includes/init.php';
 require_once __DIR__ . '/../includes/session_check.php';
 require_role('admin');
 require_once BASE_PATH.'/src/includes/payments.php';
+require_once BASE_PATH.'/src/includes/status_helpers.php';
 
 // Handle status transitions (settle / fail) for top-ups
 if($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['aksi'], $_POST['pid'])){
@@ -52,13 +53,13 @@ require_once __DIR__ . '/../../src/includes/header.php';
   <!-- Link Generate SPP dihapus -->
     </div>
   </div>
-  <p class="page-intro">Monitoring top-up saldo wallet terbaru. Settle setelah verifikasi bukti transfer.</p>
+  <p class="page-intro">Monitoring top-up saldo wallet terbaru. Dinyatakan Berhasil setelah verifikasi bukti transfer.</p>
   <div class="inv-chips topup-chips" aria-label="Ringkasan status top-up">
-    <div class="inv-chip info"><span class="k">Initiated</span><span class="v"><?= number_format($statusMap['initiated']) ?></span></div>
-    <div class="inv-chip warn"><span class="k">Need Proof</span><span class="v"><?= number_format($statusMap['awaiting_proof']) ?></span></div>
-    <div class="inv-chip warn"><span class="k">Need Confirm</span><span class="v"><?= number_format($statusMap['awaiting_confirmation']) ?></span></div>
-    <div class="inv-chip ok"><span class="k">Settled</span><span class="v"><?= number_format($statusMap['settled']) ?></span></div>
-    <div class="inv-chip danger"><span class="k">Failed</span><span class="v"><?= number_format($statusMap['failed']) ?></span></div>
+    <div class="inv-chip info"><span class="k">Dimulai</span><span class="v"><?= number_format($statusMap['initiated']) ?></span></div>
+    <div class="inv-chip warn"><span class="k">Menunggu Bukti</span><span class="v"><?= number_format($statusMap['awaiting_proof']) ?></span></div>
+    <div class="inv-chip warn"><span class="k">Menunggu Konfirmasi</span><span class="v"><?= number_format($statusMap['awaiting_confirmation']) ?></span></div>
+    <div class="inv-chip ok"><span class="k">Berhasil</span><span class="v"><?= number_format($statusMap['settled']) ?></span></div>
+    <div class="inv-chip danger"><span class="k">Gagal</span><span class="v"><?= number_format($statusMap['failed']) ?></span></div>
   </div>
   <form method="get" class="topup-filter" autocomplete="off">
     <div class="grp">
@@ -66,7 +67,7 @@ require_once __DIR__ . '/../../src/includes/header.php';
       <select id="fStatus" name="status">
         <option value="">Semua</option>
         <?php foreach(array_keys($statusMap) as $st): ?>
-          <option value="<?= e($st) ?>" <?php if($filter_status===$st) echo 'selected'; ?>><?= str_replace('_',' ',ucfirst($st)) ?></option>
+          <option value="<?= e($st) ?>" <?php if($filter_status===$st) echo 'selected'; ?>><?= e(t_status_payment($st)) ?></option>
         <?php endforeach; ?>
       </select>
     </div>
@@ -84,7 +85,7 @@ require_once __DIR__ . '/../../src/includes/header.php';
       <!-- Removed fixed min-width to avoid horizontal clipping; let table be responsive -->
       <table class="table mini-table wallet-topup-table" aria-describedby="topupCaption">
         <caption id="topupCaption" style="position:absolute;left:-9999px;top:-9999px;">Daftar top-up wallet</caption>
-        <thead><tr><th>ID</th><th>Wali</th><th>Santri</th><th class="num">Jumlah</th><th>Bukti</th><th>Status</th><th>Dibuat</th><th>Settled</th><th>Aksi</th></tr></thead>
+  <thead><tr><th>ID</th><th>Wali</th><th>Santri</th><th class="num">Jumlah</th><th>Bukti</th><th>Status</th><th>Dibuat</th><th>Berhasil</th><th>Aksi</th></tr></thead>
         <tbody>
         <?php if($rows){ foreach($rows as $r){ $stClass='pay-status-'.str_replace('_','-',$r['status']); ?>
           <tr class="<?= e($stClass) ?>">
@@ -99,7 +100,7 @@ require_once __DIR__ . '/../../src/includes/header.php';
                 <a class="btn-action small" href="<?= e($pf) ?>" target="_blank" rel="noopener">Bukti</a>
               <?php else: ?><span class="na">(belum)</span><?php endif; ?>
             </td>
-            <td><span class="status-badge <?= e($stClass) ?>"><?= e(str_replace('_',' ',$r['status'])) ?></span></td>
+            <td><span class="status-badge <?= e($stClass) ?>"><?= e(t_status_payment($r['status'])) ?></span></td>
             <td><?= $r['created_at']?date('d M Y H:i',strtotime($r['created_at'])):'-' ?></td>
             <td><?= $r['settled_at']?date('d M Y H:i',strtotime($r['settled_at'])):'-' ?></td>
             <td class="acts">

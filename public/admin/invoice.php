@@ -105,6 +105,9 @@ require_once BASE_PATH.'/src/includes/header.php';
 
   <div class="panel section invoice-list">
   <div class="panel-header"><h2>Daftar Tagihan</h2></div>
+    <div class="panel-tools" style="display:flex;gap:8px;justify-content:flex-end;margin:8px 0 10px 0">
+      <a class="btn-action" href="report.php">Laporan (Pilih Periode)</a>
+    </div>
     <?php 
       // Build download links for PDF report based on current filters
       $selYear = '';

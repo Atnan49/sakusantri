@@ -100,7 +100,7 @@ if(!function_exists('invoice_generate_spp_bulk')){
     return ['type'=>$type,'value'=>$val,'until'=>$until?:null,'year'=>$year];
   }
 
-  function _apply_spp_discount_for_period(mysqli $conn, int $userId, string $period, float $baseAmount, ?string &$note): float {
+  function _apply_spp_discount_for_period(mysqli $conn, int $userId, string $period, float $baseAmount, ?string &$note, string $type='spp'): float {
     $note = '';
     $disc = _user_spp_discount($conn,$userId);
     if(!$disc) return $baseAmount;
@@ -117,6 +117,12 @@ if(!function_exists('invoice_generate_spp_bulk')){
       }
     }
     $new = $baseAmount;
+    // Business rule: jika user memiliki beasiswa apapun, tagihan Daftar Ulang dibebaskan penuh (0)
+    if($type === 'daftar_ulang'){
+      $yrNote = isset($disc['year']) && $disc['year'] ? ' '.$disc['year'] : '';
+      $note = '(beasiswa DU penuh'.$yrNote.')';
+      return 0.0;
+    }
     if($disc['type']==='percent'){
       $p = max(0.0, min(100.0, (float)$disc['value']));
       $new = round($baseAmount * (1.0 - $p/100.0));
@@ -138,7 +144,7 @@ if(!function_exists('invoice_generate_spp_bulk')){
       $id = (int)$u['id'];
       $chk = mysqli_prepare($conn,'SELECT id FROM invoice WHERE user_id=? AND type="spp" AND period=? LIMIT 1');
       if($chk){ mysqli_stmt_bind_param($chk,'is',$id,$period); mysqli_stmt_execute($chk); $r=mysqli_stmt_get_result($chk); if($r && mysqli_fetch_row($r)){ $skipped++; continue; } }
-      $noteExtra=''; $finalAmt = _apply_spp_discount_for_period($conn,$id,$period,$amount,$noteExtra);
+  $noteExtra=''; $finalAmt = _apply_spp_discount_for_period($conn,$id,$period,$amount,$noteExtra,'spp');
       $notes = 'Tagihan SPP '.$period.($noteExtra?(' '.$noteExtra):'');
       $iid = invoice_create($conn,$id,'spp',$period,$finalAmt,$dueDate,$notes);
       if($iid){ invoice_set_meta_fields($conn,$iid,['base_amount'=>$amount,'disc_note'=>$noteExtra]); }
@@ -164,8 +170,8 @@ if(!function_exists('invoice_generate_daftar_ulang_bulk')){
       $chk = mysqli_prepare($conn,'SELECT id FROM invoice WHERE user_id=? AND type="daftar_ulang" AND period=? LIMIT 1');
       if($chk){ mysqli_stmt_bind_param($chk,'is',$id,$period); mysqli_stmt_execute($chk); $r=mysqli_stmt_get_result($chk); if($r && mysqli_fetch_row($r)){ $skipped++; continue; } }
       // Terapkan beasiswa (diskon) bila ada, berdasarkan tahun pada period (YYYYMM)
-      $noteExtra='';
-      $finalAmt = _apply_spp_discount_for_period($conn,$id,$period,$amount,$noteExtra);
+  $noteExtra='';
+  $finalAmt = _apply_spp_discount_for_period($conn,$id,$period,$amount,$noteExtra,'daftar_ulang');
       $notes = 'Tagihan Daftar Ulang '.$period.($noteExtra?(' '.$noteExtra):'');
       $iid = invoice_create($conn,$id,'daftar_ulang',$period,$finalAmt,$dueDate,$notes);
       if($iid){ invoice_set_meta_fields($conn,$iid,[ 'base_amount'=>$amount, 'disc_note'=>$noteExtra ]); }
@@ -187,7 +193,7 @@ if(!function_exists('invoice_generate_spp_single')){
     // Skip if already exists
     $chk = mysqli_prepare($conn,'SELECT id FROM invoice WHERE user_id=? AND type="spp" AND period=? LIMIT 1');
     if($chk){ mysqli_stmt_bind_param($chk,'is',$userId,$period); mysqli_stmt_execute($chk); $r=mysqli_stmt_get_result($chk); if($r && mysqli_fetch_row($r)) return ['created'=>0,'skipped'=>1,'invoice_id'=>null]; }
-  $noteExtra=''; $finalAmt=_apply_spp_discount_for_period($conn,$userId,$period,$amount,$noteExtra);
+  $noteExtra=''; $finalAmt=_apply_spp_discount_for_period($conn,$userId,$period,$amount,$noteExtra,'spp');
   $notes='Tagihan SPP '.$period.($noteExtra?(' '.$noteExtra):'');
   $iid = invoice_create($conn,$userId,'spp',$period,$finalAmt,$due,$notes);
   if($iid){ invoice_set_meta_fields($conn,$iid,['base_amount'=>$amount,'disc_note'=>$noteExtra]); }
@@ -207,8 +213,8 @@ if(!function_exists('invoice_generate_daftar_ulang_single')){
     $chk = mysqli_prepare($conn,'SELECT id FROM invoice WHERE user_id=? AND type="daftar_ulang" AND period=? LIMIT 1');
     if($chk){ mysqli_stmt_bind_param($chk,'is',$userId,$period); mysqli_stmt_execute($chk); $r=mysqli_stmt_get_result($chk); if($r && mysqli_fetch_row($r)) return ['created'=>0,'skipped'=>1,'invoice_id'=>null]; }
     // Terapkan beasiswa (diskon) bila ada, berdasarkan tahun pada period (YYYYMM)
-    $noteExtra='';
-    $finalAmt = _apply_spp_discount_for_period($conn,$userId,$period,$amount,$noteExtra);
+  $noteExtra='';
+  $finalAmt = _apply_spp_discount_for_period($conn,$userId,$period,$amount,$noteExtra,'daftar_ulang');
     $notes = 'Tagihan Daftar Ulang '.$period.($noteExtra?(' '.$noteExtra):'');
     $iid = invoice_create($conn,$userId,'daftar_ulang',$period,$finalAmt,$due,$notes);
     if($iid){ invoice_set_meta_fields($conn,$iid,[ 'base_amount'=>$amount, 'disc_note'=>$noteExtra ]); }
