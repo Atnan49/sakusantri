@@ -1,3 +1,22 @@
+# Ignore Composer lockfile (no longer used; prevents stale deps like dompdf)
+composer.lock
+
+# Ignore local Composer PHAR/installer scripts
+composer.phar
+composer-setup.php
+
+# Ignore legacy or large artifacts
+scripts/fpdf186/
+scripts/fpdf186.zip
+
+# Ignore local research/design assets folder
+penelitian ui ux/
+
+# OS/editor junk
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
 ngrok.yml
 *.log
 # OS
