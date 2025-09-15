@@ -19,48 +19,51 @@ $hist_inv=[]; $hr = mysqli_query($conn,'SELECT * FROM invoice_history WHERE invo
 while($hr && $row=mysqli_fetch_assoc($hr)) $hist_inv[]=$row;
 
 $msg=$err=null; $do=$_POST['do'] ?? '';
-// Debug log helper
-function debug_log($msg) {
-  file_put_contents(__DIR__.'/debug_invoice.log', date('Y-m-d H:i:s')." | ".$msg."\n", FILE_APPEND);
+// Debug log helper (aktif hanya jika APP_DEV true)
+if (!function_exists('debug_log')) {
+  function debug_log($message) {
+    if (!empty($GLOBALS['APP_DEV'])) {
+      $dir = BASE_PATH.'/var';
+      if(!is_dir($dir)) { @mkdir($dir, 0775, true); }
+      @file_put_contents($dir.'/debug_invoice.log', date('Y-m-d H:i:s')." | ".$message."\n", FILE_APPEND);
+    }
+  }
 }
 if($_SERVER['REQUEST_METHOD']==='POST'){
-  debug_log('POST diterima, do=' . ($_POST['do'] ?? '')); 
+  debug_log('POST diterima, do=' . ($_POST['do'] ?? ''));
   if(!verify_csrf_token($_POST['csrf_token'] ?? '')) { $err='Token tidak valid'; debug_log('Token tidak valid'); }
   else if($do==='bayar_spp_upload'){
     debug_log('Proses bayar_spp_upload');
     if(!isset($_FILES['bukti_bayar']) || $_FILES['bukti_bayar']['error']!=0){
       debug_log('File tidak ada atau error: '.($_FILES['bukti_bayar']['error'] ?? 'no file'));
-      if(isset($_FILES['bukti_bayar']['error']) && $_FILES['bukti_bayar']['error']==UPLOAD_ERR_INI_SIZE)
+      if(isset($_FILES['bukti_bayar']['error']) && (int)$_FILES['bukti_bayar']['error']===UPLOAD_ERR_INI_SIZE)
         $err='Ukuran file terlalu besar. Maksimal '.ini_get('upload_max_filesize');
       else
         $err='File bukti tidak valid atau gagal diupload.';
     } else {
-      $tmp = $_FILES['bukti_bayar']['tmp_name'];
-      $ext = strtolower(pathinfo($_FILES['bukti_bayar']['name'], PATHINFO_EXTENSION));
-      $allowed = ['jpg','jpeg','png','pdf'];
-      if(!in_array($ext,$allowed)) { $err='Format file tidak didukung'; debug_log('Format file tidak didukung: '.$ext); }
+      $invoiceId = (int)$inv['id'] > 0 ? (int)$inv['id'] : null;
+      $amt = normalize_amount($_POST['amount'] ?? 0);
+      $remaining = (float)$inv['amount'] - (float)$inv['paid_amount'];
+      if($amt<=0 || $amt>$remaining) { $err='Nominal tidak valid'; debug_log('Nominal tidak valid'); }
       else {
-        $data = file_get_contents($tmp);
-        $invoiceId = (int)$inv['id'] > 0 ? (int)$inv['id'] : null;
-        $amt = normalize_amount($_POST['amount'] ?? 0);
-        $remaining = (float)$inv['amount'] - (float)$inv['paid_amount'];
-        if($amt<=0 || $amt>$remaining) { $err='Nominal tidak valid'; debug_log('Nominal tidak valid'); }
-        else {
-          $pid = payment_initiate($conn,$uid,$invoiceId,'manual_transfer',$amt,'','wali bayar bukti');
-          debug_log('payment_initiate result: '.($pid?$pid:'FAILED'));
-          if($pid){
-            $bukti_name = uniqid('proof_').'.'.$ext;
-            $bukti_path = BASE_PATH.'/public/uploads/payment_proof/'.$bukti_name;
-            $w = file_put_contents($bukti_path, $data);
-            debug_log('file_put_contents: '.$bukti_path.' result='.$w);
+        $pid = payment_initiate($conn,$uid,$invoiceId,'manual_transfer',$amt,'','wali bayar bukti');
+        debug_log('payment_initiate result: '.($pid?$pid:'FAILED'));
+        if($pid){
+          // Gunakan helper upload; izinkan pdf
+          $up = handle_payment_proof_upload('bukti_bayar', ['jpg','jpeg','png','webp','gif','pdf']);
+          if(!$up['ok']){
+            $err = $up['error'] ?: 'Gagal upload bukti';
+            debug_log('Upload gagal: '.$err);
+          } else {
+            $bukti_name = $up['file'];
             $upd = mysqli_prepare($conn,'UPDATE payment SET proof_file=?, status=? , updated_at=NOW() WHERE id=?');
             $newStatus = 'awaiting_confirmation';
             if($upd){ mysqli_stmt_bind_param($upd,'ssi',$bukti_name,$newStatus,$pid); mysqli_stmt_execute($upd); debug_log('UPDATE payment success'); }
             payment_history_add($conn,$pid,'initiated','awaiting_confirmation',$uid,'upload proof');
             $msg='Pembayaran dibuat (#'.$pid.') dan bukti dikirim.';
-          } else {
-            $err='Gagal membuat payment'; debug_log('Gagal membuat payment');
           }
+        } else {
+          $err='Gagal membuat payment'; debug_log('Gagal membuat payment');
         }
       }
     }
@@ -153,7 +156,7 @@ require_once BASE_PATH.'/src/includes/header.php';
               <td><?= e($p['created_at']) ?></td>
               <td style="font-size:11px">
                 <?php if(!empty($p['proof_file'])): ?>
-                  <a href="../uploads/payment_proof/<?= e($p['proof_file']) ?>" target="_blank">Lihat</a>
+                  <a href="<?= url('bukti/f/'.rawurlencode($p['proof_file'])) ?>" target="_blank" rel="noopener">Lihat</a>
                 <?php else: ?>-
                 <?php endif; ?>
               </td>

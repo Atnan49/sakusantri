@@ -1,4 +1,5 @@
 RewriteEngine On
+Options -Indexes
 # Gunakan per-dir context tanpa RewriteBase agar aman untuk nama folder apa pun (sakusantri/saku_santri, dll)
 # Jika Anda benar-benar perlu, Anda bisa mengaktifkan RewriteBase yang sesuai dengan path URL Anda, contoh:
 #   RewriteBase /sakusantri/
@@ -36,6 +37,14 @@ RewriteRule ^wali/ubah-password$ wali/ubah_password.php [L]
 # Bukti
 RewriteRule ^bukti$ view_bukti.php [L]
 RewriteRule ^bukti/f/(.+)$ bukti_file.php?f=$1 [L]
+
+# Block access to sensitive files inside public
+<FilesMatch "\.(env|ini|sql|bak|log)$">
+	Require all denied
+</FilesMatch>
+
+# Forbid direct access to payment_proof files; must use bukti_file.php (enforces auth/ownership)
+RewriteRule ^uploads/payment_proof/ - [F]
 
 # Fallback to direct files if exist
 RewriteCond %{REQUEST_FILENAME} -f

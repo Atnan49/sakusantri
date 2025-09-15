@@ -73,7 +73,7 @@ require_once BASE_PATH.'/src/includes/header.php';
               <td>Rp <?= number_format($t['amount'],0,',','.') ?></td>
               <td><span class="status-<?= e($t['status']) ?>"><?= e($t['status']) ?></span></td>
               <td style="font-size:11px">
-                <?php if(!empty($t['proof_file'])): ?><a href="../uploads/payment_proof/<?= e($t['proof_file']) ?>" target="_blank">Lihat</a><?php else: ?>-<?php endif; ?>
+                <?php if(!empty($t['proof_file'])): ?><a href="<?= url('bukti/f/'.rawurlencode($t['proof_file'])) ?>" target="_blank" rel="noopener">Lihat</a><?php else: ?>-<?php endif; ?>
               </td>
               <td><?= e($t['created_at']) ?></td>
               <td style="font-size:11px">
@@ -103,7 +103,7 @@ require_once BASE_PATH.'/src/includes/header.php';
           <div class="tm-id">#<?= (int)$t['id'] ?></div>
           <div class="tm-row"><span class="tm-label">Nominal</span><span class="tm-value">Rp <?= number_format($t['amount'],0,',','.') ?></span></div>
           <div class="tm-row"><span class="tm-label">Status</span><span class="tm-status status-<?= e($t['status']) ?>"><?= e($t['status']) ?></span></div>
-          <div class="tm-row"><span class="tm-label">Bukti</span><span class="tm-proof"><?php if(!empty($t['proof_file'])): ?><a href="../uploads/payment_proof/<?= e($t['proof_file']) ?>" target="_blank">Lihat</a><?php else: ?>-<?php endif; ?></span></div>
+          <div class="tm-row"><span class="tm-label">Bukti</span><span class="tm-proof"><?php if(!empty($t['proof_file'])): ?><a href="<?= url('bukti/f/'.rawurlencode($t['proof_file'])) ?>" target="_blank" rel="noopener">Lihat</a><?php else: ?>-<?php endif; ?></span></div>
           <div class="tm-row"><span class="tm-label">Dibuat</span><span class="tm-value"><?= e($t['created_at']) ?></span></div>
           <?php if(in_array($t['status'],['initiated','awaiting_proof']) && empty($t['proof_file'])): ?>
             <form class="tm-upload-form" method="post" enctype="multipart/form-data">

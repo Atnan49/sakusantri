@@ -9,12 +9,19 @@ function handle_payment_proof_upload(string $field, array $allowedExt=['jpg','jp
     if($size > $maxBytes) return ['ok'=>false,'file'=>null,'error'=>'Ukuran melebihi batas (maksimal 2MB)'];
     if(!is_uploaded_file($tmp)) return ['ok'=>false,'file'=>null,'error'=>'Upload tidak valid'];
     $finfo = function_exists('finfo_open') ? @finfo_open(FILEINFO_MIME_TYPE) : false; $mime = $finfo? @finfo_file($finfo,$tmp):''; if($finfo) @finfo_close($finfo);
+    // Tentukan MIME yang diizinkan berdasarkan ekstensi yang diizinkan
     $allowedMime = ['image/jpeg','image/png','image/webp','image/gif'];
+    if(in_array('pdf', $allowedExt, true)) { $allowedMime[] = 'application/pdf'; }
     if($mime && !in_array($mime,$allowedMime,true)) return ['ok'=>false,'file'=>null,'error'=>'MIME tidak valid'];
     if(!function_exists('payments_random_name')){ return ['ok'=>false,'file'=>null,'error'=>'Helper random name tidak ada']; }
     $newName = payments_random_name('payproof',$ext);
     $destDir = BASE_PATH.'/public/uploads/payment_proof'; if(!is_dir($destDir)) @mkdir($destDir,0775,true);
     $dest = $destDir.'/'.$newName;
+    // Jika PDF, langsung pindahkan tanpa kompresi
+    if($ext === 'pdf'){
+        if(!@move_uploaded_file($tmp,$dest)) return ['ok'=>false,'file'=>null,'error'=>'Gagal simpan file'];
+        return ['ok'=>true,'file'=>$newName,'error'=>null];
+    }
     // Kompresi gambar jika JPEG/PNG dan ekstensi GD tersedia
     if(in_array($ext,['jpg','jpeg','png'],true) && function_exists('imagecreatefromjpeg')){
         $img = null;

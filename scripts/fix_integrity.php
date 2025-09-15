@@ -4,7 +4,13 @@
 require_once __DIR__.'/../src/includes/init.php';
 if(defined('INTEGRITY_KEY') && constant('INTEGRITY_KEY')){
   $k = $_GET['key'] ?? ($_SERVER['HTTP_X_INTEGRITY_KEY'] ?? '');
-  if($k !== constant('INTEGRITY_KEY')){ http_response_code(403); echo 'Forbidden'; exit; }
+  $hasHeader = isset($_SERVER['HTTP_X_INTEGRITY_KEY']);
+  if($hasHeader){
+    if($k !== constant('INTEGRITY_KEY')){ http_response_code(403); echo 'Forbidden'; exit; }
+  } else {
+    if(empty($APP_DEV)) { http_response_code(403); echo 'Forbidden (header key required)'; exit; }
+    if($k !== constant('INTEGRITY_KEY')){ http_response_code(403); echo 'Forbidden'; exit; }
+  }
 }
 
 $fixed = [];

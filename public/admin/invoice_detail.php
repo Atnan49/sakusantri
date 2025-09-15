@@ -134,7 +134,7 @@ require_once BASE_PATH.'/src/includes/header.php';
                 <td><?= e($p['created_at']) ?></td>
                 <td>
                   <?php if(!empty($p['proof_file'])): ?>
-                    <a href="../uploads/payment_proof/<?= e($p['proof_file']) ?>" target="_blank">Lihat</a>
+                    <a href="<?= url('bukti/f/'.rawurlencode($p['proof_file'])) ?>" target="_blank" rel="noopener">Lihat</a>
                   <?php else: ?>-
                   <?php endif; ?>
                 </td>

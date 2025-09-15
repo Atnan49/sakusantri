@@ -4,11 +4,15 @@ require_once __DIR__.'/../src/includes/init.php';
 require_once BASE_PATH.'/src/includes/payments.php';
 header('Content-Type: application/json; charset=utf-8');
 if(!defined('GATEWAY_SECRET') || !constant('GATEWAY_SECRET')){ http_response_code(500); echo json_encode(['ok'=>false,'error'=>'secret_not_set']); exit; }
+// In production, require HMAC; in dev, allow query/HTTP header secret fallback
 $secret = $_GET['secret'] ?? ($_SERVER['HTTP_X_GATEWAY_SECRET'] ?? '');
-// Support stronger HMAC auth if headers provided (X-TIMESTAMP + X-Signature)
-if(isset($_SERVER['HTTP_X_SIGNATURE']) && isset($_SERVER['HTTP_X_TIMESTAMP'])){
+$hasHmac = isset($_SERVER['HTTP_X_SIGNATURE']) && isset($_SERVER['HTTP_X_TIMESTAMP']);
+if($hasHmac){
 	if(!hmac_verify_request(constant('GATEWAY_SECRET'))){ http_response_code(403); echo json_encode(['ok'=>false,'error'=>'bad_hmac']); exit; }
-} else if($secret !== constant('GATEWAY_SECRET')){ http_response_code(403); echo json_encode(['ok'=>false,'error'=>'forbidden']); exit; }
+} else {
+	if(empty($APP_DEV)) { http_response_code(403); echo json_encode(['ok'=>false,'error'=>'hmac_required']); exit; }
+	if($secret !== constant('GATEWAY_SECRET')){ http_response_code(403); echo json_encode(['ok'=>false,'error'=>'forbidden']); exit; }
+}
 $pid = isset($_POST['payment_id']) ? (int)$_POST['payment_id'] : 0;
 $status = $_POST['status'] ?? '';
 if(!$pid || !in_array($status,['settled','failed'],true)){ http_response_code(400); echo json_encode(['ok'=>false,'error'=>'invalid']); exit; }

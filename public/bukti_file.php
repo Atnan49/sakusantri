@@ -11,7 +11,7 @@ if ($fn === '') { http_response_code(400); echo 'Bad request'; exit; }
 
 // Basic extension allowlist to avoid serving unexpected files
 $ext = strtolower(pathinfo($fn, PATHINFO_EXTENSION));
-$allowed_ext = ['jpg','jpeg','png','webp','gif'];
+$allowed_ext = ['jpg','jpeg','png','webp','gif','pdf'];
 if (!in_array($ext, $allowed_ext, true)) {
   http_response_code(400);
   echo 'Tipe file tidak didukung';
@@ -69,10 +69,12 @@ if (function_exists('finfo_open')) {
   if ($f) { $det = @finfo_file($f, $path); if ($det) { $mime = $det; } @finfo_close($f); }
 }
 // Force image/* for known image types when detection fails or is generic
-if (strpos($mime, 'image/') !== 0) {
+if (strpos($mime, 'image/') !== 0 && $ext !== 'pdf') {
   $map = ['jpg'=>'image/jpeg','jpeg'=>'image/jpeg','png'=>'image/png','webp'=>'image/webp','gif'=>'image/gif'];
   if (isset($map[$ext])) { $mime = $map[$ext]; }
 }
+// For PDF, ensure Content-Type is application/pdf
+if ($ext === 'pdf') { $mime = 'application/pdf'; }
 header('Content-Type: ' . $mime);
 header('X-Content-Type-Options: nosniff');
 header('Content-Length: ' . filesize($path));
