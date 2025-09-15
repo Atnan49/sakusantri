@@ -286,7 +286,7 @@ if(!function_exists('payment_update_status')){
   $stmtSel = mysqli_prepare($conn,'SELECT status, invoice_id, user_id, amount, method FROM payment WHERE id=? FOR UPDATE');
   if(!$stmtSel){ mysqli_rollback($conn); return false; }
   mysqli_stmt_bind_param($stmtSel,'i',$paymentId); mysqli_stmt_execute($stmtSel); $rs = mysqli_stmt_get_result($stmtSel); $row = $rs?mysqli_fetch_assoc($rs):null; if(!$row){ mysqli_rollback($conn); return false; }
-    $from = $row['status']; if($from === $toStatus) return true; // idempotent
+    $from = $row['status']; if($from === $toStatus){ mysqli_commit($conn); return true; } // idempotent
     $allowed = [
       'initiated'=>['awaiting_proof','awaiting_gateway','awaiting_confirmation','failed'],
       'awaiting_proof'=>['awaiting_confirmation','failed'],
@@ -339,7 +339,7 @@ if(!function_exists('invoice_apply_payment')){
   function invoice_apply_payment(mysqli $conn, int $invoiceId, float $amount, ?int $actorId=null, string $note=''): bool {
   $amount = round($amount,2);
     // optimistic update
-  $stmt = mysqli_prepare($conn,'SELECT amount, paid_amount, status, user_id FROM invoice WHERE id=? FOR UPDATE');
+  $stmt = mysqli_prepare($conn,'SELECT amount, paid_amount, status, user_id, due_date FROM invoice WHERE id=? FOR UPDATE');
   if(!$stmt) return false; mysqli_stmt_bind_param($stmt,'i',$invoiceId); mysqli_stmt_execute($stmt); $rs=mysqli_stmt_get_result($stmt); $inv=$rs?mysqli_fetch_assoc($rs):null; if(!$inv) return false;
   $newPaid = (float)$inv['paid_amount'] + $amount;
   if($newPaid > (float)$inv['amount']) { $newPaid = (float)$inv['amount']; }

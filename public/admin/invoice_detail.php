@@ -59,8 +59,9 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
   } else if($do==='reject_payment'){
     $pid = (int)($_POST['payment_id'] ?? 0);
     if(!$pid) $err='Payment tidak valid'; else {
-      $res = payment_update_status($conn,$pid,'rejected',(int)($_SESSION['user_id']??null),'admin reject');
-      if(!$res) $err='Gagal menolak pembayaran'; else $msg='Pembayaran ditolak';
+      // Align with allowed transitions: use 'failed' as the canonical rejected state
+      $res = payment_update_status($conn,$pid,'failed',(int)($_SESSION['user_id']??null),'admin reject');
+      if(!$res) $err='Gagal menandai pembayaran gagal'; else $msg='Pembayaran ditandai gagal';
     }
   }
   // reload after post
