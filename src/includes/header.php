@@ -82,10 +82,10 @@ if(!headers_sent()){
   <link rel="stylesheet" href="<?php echo url('assets/css/auth.css'); ?>?v=20250825g">
   <link rel="stylesheet" href="<?php echo url('assets/css/mobile-login.css'); ?>?v=20250827a" media="(max-width: 860px)">
   <?php else: ?>
-  <link rel="stylesheet" href="<?php echo url('assets/css/mobile-app.css'); ?>?v=20250906b" media="(max-width: 860px)">
+  <link rel="stylesheet" href="<?php echo url('assets/css/mobile-app.css'); ?>?v=20250924b" media="(max-width: 860px)">
   <?php endif; ?>
   <!-- UI overrides loaded last to safely refine base styles -->
-  <link rel="stylesheet" href="<?php echo url('assets/css/override.css'); ?>?v=20250913a">
+  <link rel="stylesheet" href="<?php echo url('assets/css/override.css'); ?>?v=20250924c">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,500,0,0" />
   <meta name="application-name" content="Saku Santri" />
   <meta name="apple-mobile-web-app-title" content="Saku Santri" />
@@ -129,6 +129,10 @@ if(!headers_sent()){
   };
   ?>
   <div class="header-inner">
+    <button class="nav-toggle" type="button" aria-controls="mainMenu" aria-expanded="false">
+      <span class="bar"></span>
+      <span class="sr-only">Menu</span>
+    </button>
     <a class="brand" href="<?php echo $home; ?>">Saku Santri</a>
     <?php if (!empty($hostDisplay)): ?>
       <span class="brand-host"><?php echo e($hostDisplay); ?></span>

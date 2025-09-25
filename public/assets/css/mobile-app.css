@@ -5,12 +5,30 @@
   header.site-header .hello{display:none!important}
   header.site-header{padding:0;height:0;overflow:hidden;border:none}
 
-  /* Sidebar menjadi overlay + tombol toggle */
-  .main-menu{position:fixed;top:0;left:0;bottom:0;width:240px;max-width:240px;transform:translateX(-100%);transition:transform .28s ease;background:var(--admin-green)!important;z-index:900;padding:60px 12px 70px;box-shadow:2px 0 18px -6px rgba(0,0,0,.35)}
+  /* Sidebar menjadi overlay + tombol toggle - now fully responsive */
+  .main-menu{
+    position:fixed;top:0;left:0;bottom:0;
+    width:clamp(160px, 45vw, 280px); /* responsive width matching override.css */
+    max-width:75vw;
+    transform:translateX(-100%);
+    transition:transform .28s ease;
+    background:var(--admin-green)!important;
+    z-index:900;
+    padding:clamp(20px, 4vh, 50px) clamp(6px, 2vw, 12px) clamp(30px, 6vh, 60px);
+    box-shadow:2px 0 18px -6px rgba(0,0,0,.35);
+  }
   body.menu-open .main-menu{transform:translateX(0)}
-  .main-menu .btn-menu{margin:2px 0;padding:9px 12px;font-size:12.5px}
-  .main-menu .btn-menu .mi{font-size:17px}
-  .main-menu .btn-danger{margin-top:14px}
+  .main-menu .btn-menu{
+    margin:1px 0;
+    padding:clamp(5px, 1.2vh, 8px) clamp(6px, 2vw, 12px); /* responsive padding */
+    font-size:clamp(10px, 2.8vw, 14px); /* responsive font size */
+  }
+  .main-menu .btn-menu .mi{
+    font-size:clamp(13px, 3.5vw, 18px); /* responsive icons */
+  }
+  .main-menu .btn-danger{
+    margin-top:clamp(8px, 2vh, 14px); /* responsive margin */
+  }
 
   /* Tombol hamburger */
   .mobile-nav-toggle{position:fixed;top:10px;left:10px;z-index:950;width:42px;height:42px;border-radius:12px;border:0;background:#ffffffd9;backdrop-filter:blur(4px);box-shadow:0 4px 14px -4px rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:0}
@@ -53,9 +71,7 @@
   .notif-badge{transform:scale(.9);transform-origin:top right}
 }
 
-@media (max-width:520px){
-  .main-menu{width:220px;max-width:220px;padding:56px 10px 60px}
-  .main-menu .btn-menu{font-size:12px;padding:8px 10px}
+/* Remove fixed width breakpoints - let clamp() handle all responsiveness automatically */
   .admin-heading{font-size:24px!important}
   .panel{padding:18px 16px!important}
   .panel-header h2{font-size:17px!important}
@@ -64,10 +80,9 @@
   .month-grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr))!important}
   .btn-action, .btn-primary, .btn-secondary{font-size:12.5px;padding:8px 12px}
   .pill{font-size:10.5px}
-}
 
 @media (max-width:400px){
-  .main-menu{width:206px;max-width:206px}
+  /* Sidebar width now handled by clamp() - no need for fixed breakpoints */
   .mobile-nav-toggle{width:40px;height:40px}
   .panel{padding:16px 14px!important}
   .admin-heading{font-size:22px!important}

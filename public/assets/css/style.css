@@ -423,77 +423,8 @@
 	.wallet-entry-mobile { display: none !important; }
 	.wallet-table-desktop { display: block !important; }
 }
-@media (max-width: 900px) {
-		.main-menu {
-			display: flex;
-			flex-direction: column;
-			align-items: flex-start;
-			gap: 0.5rem;
-			margin-bottom: 24px;
-		}
-				.main-menu {
-					width: 76vw;
-					max-width: 270px;
-					min-width: 0;
-					box-sizing: border-box;
-					left: 0;
-					right: auto;
-					top: 0;
-					padding: 10px 4px 32px 4px;
-					display: flex;
-					flex-direction: column;
-					align-items: flex-start;
-					gap: 0.5rem;
-					margin-bottom: 0;
-					position: fixed;
-					max-height: 100dvh;
-					overflow-y: auto;
-					border-top-right-radius: 22px;
-					border-bottom-right-radius: 22px;
-					border-right: 1.5px solid #b9b2a8;
-					background: var(--admin-green);
-					z-index: 1002;
-				}
-	}
-@media (max-width: 900px) {
-	.main-menu {
-		width: 76vw;
-		max-width: 270px;
-		min-width: 0;
-		box-sizing: border-box;
-		left: 0;
-		right: auto;
-		padding: 10px 4px 32px 4px;
-	}
-	.main-menu .wali-logo-icon {
-		width: 36px;
-		height: 36px;
-	}
-	.main-menu .wali-avatar {
-		width: 60px;
-		height: 60px;
-		margin-bottom: 8px;
-	}
-	.main-menu .wali-greet .nama {
-		font-size: 13px;
-	}
-	.main-menu .wali-greet .santri {
-		font-size: 10px;
-	}
-	.main-menu .btn-menu {
-		font-size: 12px;
-		padding: 7px 8px;
-		margin: 2px 0;
-	}
-	.main-menu .btn-danger {
-		font-size: 13px;
-		padding: 8px 0;
-		border-radius: 12px;
-	}
-	.main-menu .btn-menu .mi {
-		font-size: 16px;
-	}
-}
+/* Removed legacy mobile .main-menu layout rules to avoid conflict with overlay drawer.
+   Mobile sizing and visibility are handled in mobile-app.css and override.css */
 /* Avatar santri di kasir */
 .kasir-page.minimal .pengguna-block .pb-ident{display:flex;align-items:center;gap:18px}
 .kasir-page.minimal .pengguna-block .pb-avatar.avatar-sm{width:64px;height:64px;border-radius:50%;overflow:hidden;flex:0 0 64px;background:#e2e8f0;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px #d1d5db}

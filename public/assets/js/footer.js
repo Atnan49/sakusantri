@@ -17,11 +17,16 @@
     var menu = document.getElementById('mainMenu');
     if(menu){
       // Avoid adding a second toggle if ui.js already injected one
-      if(!document.querySelector('.nav-toggle')){
+      if(!document.querySelector('.nav-toggle, .mobile-nav-toggle')){
         var btn = document.createElement('button');
         btn.className='mobile-nav-toggle';
         btn.type='button';
-        btn.addEventListener('click', function(){
+        btn.addEventListener('click', function(e){
+          // If enhanced UI is ready, delegate to ui.js handler only
+          if(document.body.classList.contains('js-ready')){
+            // Let ui.js be the single source of truth; do not interfere
+            return;
+          }
           var open = body.classList.toggle('menu-open');
           btn.classList.toggle('active', open);
           // inline transform as a fallback when CSS is overridden

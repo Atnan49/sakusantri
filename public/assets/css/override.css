@@ -52,20 +52,46 @@ body.menu-open .nav-toggle .bar:after{top:0;transform:rotate(-45deg)}
 
 @media (max-width:1100px){
   body.has-sidebar main.container{margin-left:0 !important;padding:40px 28px 100px}
-  /* Force overlay sidebar on mobile (override base mobile toolbar layout) */
-  .main-menu{position:fixed !important;top:0;left:0;bottom:0;width:250px;max-width:72vw;display:flex;flex-direction:column;padding:14px;background:var(--admin-green)!important;z-index:1200;will-change:transform}
-  body.has-sidebar nav#mainMenu.main-menu{transform:translateX(-100%) !important;transition:transform .32s ease;box-shadow:0 8px 24px -6px rgba(0,0,0,.35)}
-  body.menu-open nav#mainMenu.main-menu{transform:translateX(0) !important}
+  /* Force overlay sidebar on mobile (override legacy style.css mobile rules) */
+  nav#mainMenu.main-menu{
+    position:fixed !important;
+    top:0;left:0;bottom:0;
+    width:clamp(160px, 45vw, 280px) !important;  /* responsive width: min 160px, max 280px, ideal 45% viewport */
+    max-width:75vw !important;                   /* fallback max width */
+    padding:clamp(20px, 4vh, 50px) clamp(6px, 2vw, 12px) clamp(30px, 6vh, 60px) !important; /* responsive padding */
+    display:flex;flex-direction:column;
+    background:var(--admin-green)!important;
+    z-index:1200;will-change:transform;
+    /* defeat rounded edge + border from older CSS */
+    border-top-right-radius:0 !important;
+    border-bottom-right-radius:0 !important;
+    border-right:none !important;
+    /* hidden by default on mobile */
+    transform:translateX(-100%) !important;
+    transition:transform .32s ease;
+    box-shadow:2px 0 18px -6px rgba(0,0,0,.35);
+    overflow-y:auto;
+    max-height:100vh;
+  }
+  /* Only open when JS has initialized to avoid initial flash */
+  body.js-ready.menu-open nav#mainMenu.main-menu{transform:translateX(0) !important}
   body.menu-open{overflow:hidden}
   .nav-toggle{position:relative;z-index:1300}
   .nav-toggle{display:inline-flex}
   .menu-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.4);opacity:0;pointer-events:none;transition:.3s;z-index:1100}
-  body.menu-open .menu-backdrop{opacity:1;pointer-events:auto}
+  body.js-ready.menu-open .menu-backdrop{opacity:1;pointer-events:auto}
 
-  /* Larger, more readable sidebar menu text on mobile */
-  nav#mainMenu.main-menu .btn-menu{font-size:17px; padding:12px 20px}
-  nav#mainMenu.main-menu .btn-menu .mi{font-size:22px}
-  nav#mainMenu.main-menu .btn-danger{font-size:17px}
+  /* Responsive sidebar menu text that scales with viewport */
+  nav#mainMenu.main-menu .btn-menu{
+    font-size:clamp(11px, 3.2vw, 16px);           /* responsive font: 11px-16px based on viewport */
+    padding:clamp(6px, 1.5vh, 10px) clamp(8px, 2.5vw, 15px); /* responsive padding */
+  }
+  nav#mainMenu.main-menu .btn-menu .mi{
+    font-size:clamp(14px, 4vw, 20px);             /* responsive icons: 14px-20px */
+  }
+  nav#mainMenu.main-menu .btn-danger{
+    font-size:clamp(11px, 3.2vw, 16px);           /* responsive logout button */
+  }
 }
 
 /* Reduce motion preference */
@@ -98,33 +124,69 @@ input:focus,select:focus,textarea:focus{outline:var(--focus-outline);outline-off
 
 /* === Sidebar Improvements === */
 .main-menu{font-family:'Segoe UI',system-ui,sans-serif;--menu-pad:14px;padding:10px 0 80px;gap:4px}
-.main-menu .nav-brand-block,.main-menu .wali-brand-block{padding:0 18px 14px;margin:0 0 10px;border-bottom:1px solid rgba(0,0,0,.08)}
-.main-menu .brand-header,.wali-logo-row{display:flex;align-items:center;gap:10px;margin:0 0 14px}
-.main-menu .brand-logo img,.wali-logo-icon img{width:54px;height:54px;object-fit:contain;filter:drop-shadow(0 2px 4px rgba(0,0,0,.25))}
-.main-menu .brand-text,.wali-logo-text{font-size:20px;font-weight:750;letter-spacing:.5px}
-.admin-avatar img{width:70px;height:70px;border-radius:50%;object-fit:cover;box-shadow:0 4px 12px -4px rgba(0,0,0,.4);margin:0 0 12px}
-.greet-wrap,.wali-greet{display:flex;flex-direction:column;gap:2px;font-size:12px;font-weight:600;color:#111}
+.main-menu .nav-brand-block,.main-menu .wali-brand-block{
+  padding:0 clamp(8px, 3vw, 18px) clamp(6px, 1.5vh, 12px);
+  margin:0 0 clamp(6px, 2vh, 10px);
+  border-bottom:1px solid rgba(0,0,0,.08);
+} /* responsive brand block padding */
+.main-menu .brand-header,.wali-logo-row{
+  display:flex;align-items:center;
+  gap:clamp(6px, 2vw, 12px);
+  margin:0 0 clamp(6px, 1.5vh, 10px);
+} /* responsive header gaps */
+.main-menu .brand-logo img,.wali-logo-icon img{
+  width:clamp(30px, 8vw, 50px);
+  height:clamp(30px, 8vw, 50px);
+  object-fit:contain;
+  filter:drop-shadow(0 2px 4px rgba(0,0,0,.25));
+} /* responsive logo size */
+.main-menu .brand-text,.wali-logo-text{
+  font-size:clamp(12px, 4vw, 20px);
+  font-weight:750;
+  letter-spacing:.5px;
+} /* responsive brand text */
+.admin-avatar img{
+  width:clamp(35px, 10vw, 60px);
+  height:clamp(35px, 10vw, 60px);
+  border-radius:50%;
+  object-fit:cover;
+  box-shadow:0 4px 12px -4px rgba(0,0,0,.4);
+  margin:0 0 clamp(4px, 1vh, 8px);
+} /* responsive avatar */
+.greet-wrap,.wali-greet{
+  display:flex;flex-direction:column;gap:2px;
+  font-size:clamp(9px, 2.5vw, 12px);
+  font-weight:600;color:#111;
+} /* responsive greeting text */
 .greet-wrap .role{font-size:11px;letter-spacing:.6px;background:rgba(255,255,255,.45);padding:4px 10px;border-radius:30px;align-self:flex-start}
-.btn-menu{position:relative;border-radius:10px;margin:0 10px;font-size:13px;letter-spacing:.3px}
+.btn-menu{
+  position:relative;
+  border-radius:clamp(6px, 1.5vw, 10px);  /* responsive border radius */
+  margin:0 clamp(4px, 1.5vw, 8px);        /* responsive margins */
+  font-size:clamp(10px, 2.8vw, 14px);     /* responsive base font size */
+  letter-spacing:.3px;
+}
 /* Wali shell context: slightly smaller default menu text */
-body.wali .main-menu .btn-menu{font-size:12px}
+body.wali .main-menu .btn-menu{font-size:clamp(9px, 2.5vw, 12px);}
 .btn-menu .notif-badge{position:absolute;right:12px;top:50%;transform:translateY(-50%)}
 a.btn-menu.active{background:rgba(0,0,0,.18)!important;color:#0b0f0a}
 body.menu-open .main-menu{box-shadow:0 6px 22px -8px rgba(0,0,0,.5)}
 .main-menu::-webkit-scrollbar{width:10px}
 .main-menu::-webkit-scrollbar-track{background:rgba(0,0,0,.05)}
 .main-menu::-webkit-scrollbar-thumb{background:rgba(0,0,0,.28);border-radius:20px;border:2px solid rgba(0,0,0,.05)}
-.main-menu .btn-danger{margin:30px 10px 0}
+.main-menu .btn-danger{
+  margin:clamp(12px, 4vh, 24px) clamp(4px, 1.5vw, 8px) 0; /* responsive spacing for logout button */
+}
 
 /* Scroll shadow indicator */
 .main-menu{background:linear-gradient(var(--admin-green) 0 0) padding-box,linear-gradient(to bottom,rgba(0,0,0,.15),rgba(0,0,0,0) 60px) border-box}
 .main-menu.scrolled-top{box-shadow:none}
 .main-menu.scrolled{box-shadow:0 6px 18px -8px rgba(0,0,0,.45) inset}
 
-/* Wali-only: make sidebar text a bit smaller (desktop) */
-.main-menu.wali-menu .btn-menu{font-size:12px}
-.main-menu.wali-menu .btn-menu .mi{font-size:16px}
-.main-menu.wali-menu .menu-title{font-size:11px}
+/* Wali-only: responsive sidebar text */
+.main-menu.wali-menu .btn-menu{font-size:clamp(9px, 2.5vw, 12px);}     /* responsive wali menu text */
+.main-menu.wali-menu .btn-menu .mi{font-size:clamp(12px, 3.5vw, 16px);} /* responsive wali icons */
+.main-menu.wali-menu .menu-title{font-size:clamp(8px, 2.2vw, 11px);}    /* responsive wali menu title */
 
 /* Dark mode overrides removed */
 
@@ -193,10 +255,10 @@ body.menu-open .main-menu{box-shadow:0 6px 22px -8px rgba(0,0,0,.5)}
 .admin-avatar.no-img{background:linear-gradient(135deg,#6f8c55,#57713d)}
 .admin-avatar .avatar-letter{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:700;color:#fff;letter-spacing:.5px;text-shadow:0 2px 6px rgba(0,0,0,.35)}
 /* === Avatar & Heading Tweaks (visibility + size) === */
-.admin-avatar{width:100px;height:100px;margin:4px 0 16px}
-.admin-avatar .avatar-letter{font-size:44px}
-.main-menu .brand-header{gap:14px}
-.main-menu .brand-text{font-size:22px}
+.admin-avatar{width:70px;height:70px;margin:4px 0 10px}  /* smaller avatar on desktop too */
+.admin-avatar .avatar-letter{font-size:32px}              /* smaller avatar letter */
+.main-menu .brand-header{gap:10px}                        /* smaller gap */
+.main-menu .brand-text{font-size:18px}                    /* smaller brand text */
 .content-header h1, .page-shell h1{font-size:32px;font-weight:800;color:#1b1f17;letter-spacing:.6px}
 /* Dark mode heading tweaks removed */
 
@@ -205,6 +267,17 @@ body.menu-open .main-menu{box-shadow:0 6px 22px -8px rgba(0,0,0,.5)}
 
 /* Final enforce heading color (regardless of system theme) */
 .content-header h1, .page-shell h1{color:#000 !important;text-shadow:none !important}
+
+/* Hide header textual elements when sidebar hamburger is active up to 1100px
+   (JS uses 1100px breakpoint). Previously hidden only until 860px via mobile-app.css */
+@media (max-width:1100px){
+  body.has-sidebar .site-header .brand,
+  body.has-sidebar .site-header .brand-host,
+  body.has-sidebar .site-header .hello,
+  body.has-sidebar .site-header .link-logout{display:none !important}
+  /* Collapse header height (keep for accessibility / skip link anchor) */
+  body.has-sidebar .site-header{padding:0;height:0;overflow:hidden;border:none}
+}
 
 /* Theme toggle removed */
 
@@ -301,7 +374,8 @@ body.menu-open .main-menu{box-shadow:0 6px 22px -8px rgba(0,0,0,.5)}
 .wali-avatar{position:relative}
 .wali-avatar .avatar-letter{
   display:flex;align-items:center;justify-content:center;
-  font-size:44px;font-weight:700;color:#fff;letter-spacing:.5px;
+  font-size:clamp(24px, 7vw, 40px);                      /* responsive wali avatar letter size */
+  font-weight:700;color:#fff;letter-spacing:.5px;
   text-shadow:0 2px 6px rgba(0,0,0,.35)
 }
 .amount-positive{font-weight:700;color:#047857;font-size:13px}

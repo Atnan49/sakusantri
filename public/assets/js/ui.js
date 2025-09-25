@@ -1,6 +1,8 @@
 // Progressive Enhancement UI Script (keeps legacy inline JS tetap jalan)
 (function(){
   const body = document.body;
+  // Mark JS readiness early
+  document.body.classList.add('js-ready');
   const menu = document.getElementById('mainMenu');
   // Insert toggle button if sidebar present
   if(menu && body.classList.contains('has-sidebar')){
@@ -12,24 +14,52 @@
       s.top = '0';
       s.left = '0';
       s.bottom = '0';
-  s.width = '250px';
-  s.maxWidth = '72vw';
+      // Use viewport-based width that matches CSS clamp() function
+      const vw = window.innerWidth;
+      const calculatedWidth = Math.min(Math.max(160, vw * 0.45), 280); // clamp(160px, 45vw, 280px)
+      s.width = calculatedWidth + 'px';
+      s.maxWidth = '75vw';
       s.background = getComputedStyle(menu).backgroundColor || '#7b9370';
       s.zIndex = '1200';
       s.transition = 'transform .32s ease';
       s.willChange = 'transform';
     }
-    let toggle = document.querySelector('.nav-toggle');
+    function applyMobileMenuBase(){
+      if(!isMobile() || !menu) return;
+      const s = menu.style;
+      s.position = 'fixed';
+      s.top = '0';
+      s.left = '0';
+      s.bottom = '0';
+  s.width = '180px';                      // smaller width to match CSS
+  s.maxWidth = '70vw';                    // smaller max width
+      s.background = getComputedStyle(menu).backgroundColor || '#7b9370';
+      s.zIndex = '1200';
+      s.transition = 'transform .32s ease';
+      s.willChange = 'transform';
+    }
+    let toggle = document.querySelector('.nav-toggle, .mobile-nav-toggle');
     if(!toggle){
       toggle = document.createElement('button');
       toggle.type = 'button';
-      toggle.className = 'nav-toggle';
       toggle.setAttribute('aria-expanded','false');
       toggle.setAttribute('aria-controls','mainMenu');
       toggle.innerHTML = '<span class="bar"></span><span class="sr-only">Toggle menu</span>';
-      const header = document.querySelector('.site-header .header-inner') || document.body;
-      header.insertBefore(toggle, header.firstChild);
     }
+    function placeToggle(){
+      const header = document.querySelector('.site-header .header-inner');
+      const headerStyle = header ? getComputedStyle(header.parentElement) : null;
+      const headerCollapsed = !header || headerStyle.display === 'none' || parseFloat(headerStyle.height||'0') < 10;
+      if(isMobile() && headerCollapsed){
+        toggle.className = 'mobile-nav-toggle';
+        if(toggle.parentElement !== document.body){ document.body.appendChild(toggle); }
+      } else {
+        toggle.className = 'nav-toggle';
+        const host = header || document.body;
+        if(toggle.parentElement !== host){ host.insertBefore(toggle, host.firstChild); }
+      }
+    }
+    placeToggle();
   const backdrop = document.createElement('div');
     backdrop.className='menu-backdrop';
     document.body.appendChild(backdrop);
@@ -38,21 +68,33 @@
     function closeMenu(){
       body.classList.remove('menu-open');
       toggle.setAttribute('aria-expanded','false');
-      if(isMobile() && menu){ menu.style.transform = 'translateX(-100%)'; }
+      if(!menu) return;
+      if(isMobile()){ menu.style.transform = 'translateX(-100%)'; }
+      else { menu.style.transform = ''; }
     }
     function openMenu(){
       body.classList.add('menu-open');
       toggle.setAttribute('aria-expanded','true');
-      if(isMobile() && menu){ menu.style.transform = 'translateX(0)'; }
+      if(!menu) return;
+      if(isMobile()){ menu.style.transform = 'translateX(0)'; }
+      else { menu.style.transform = ''; }
     }
-    toggle.addEventListener('click',()=>{body.classList.contains('menu-open')?closeMenu():openMenu();});
+    toggle.addEventListener('click', (ev)=>{
+      ev.preventDefault();
+      ev.stopPropagation();
+      if(body.classList.contains('menu-open')){ closeMenu(); }
+      else { openMenu(); }
+      // visual active state for both kinds of toggle
+      const active = body.classList.contains('menu-open');
+      toggle.classList.toggle('active', active);
+    });
     backdrop.addEventListener('click',closeMenu);
     // Close on esc
     window.addEventListener('keydown',e=>{if(e.key==='Escape'){closeMenu();}});
     // Reset inline transform when resizing to desktop
     window.addEventListener('resize', ()=>{
       if(isMobile()){
-        applyMobileMenuBase();
+        applyMobileMenuBase(); // Recalculate responsive width on resize
         if(!body.classList.contains('menu-open')){ menu.style.transform = 'translateX(-100%)'; }
       } else if(menu){
         // Reset inline styles for desktop
@@ -69,7 +111,11 @@
         body.classList.remove('menu-open');
         toggle.setAttribute('aria-expanded','false');
       }
+      placeToggle();
     });
+  // Strong guarantee: start closed on load (mobile only). On desktop, ensure visible.
+  if(isMobile()){ closeMenu(); } else { if(menu){ menu.style.transform=''; } }
+    toggle.classList.remove('active');
   }
   // Focus ring only when keyboard navigation
   function handleFirstTab(e){ if(e.key==='Tab'){ document.documentElement.classList.add('user-tab'); window.removeEventListener('keydown',handleFirstTab); window.addEventListener('mousedown',handleMouse);} }

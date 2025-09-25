@@ -6,8 +6,8 @@
 <?php if(!defined('MAIN_CLOSED')): ?>
 </main>
 <?php endif; ?>
-<script src="<?php echo url('assets/js/footer.js'); ?>?v=20250830a" defer></script>
+<script src="<?php echo url('assets/js/footer.js'); ?>?v=20250923a" defer></script>
 <?php // bumped version to force reload after tab fix ?>
-<script src="<?php echo url('assets/js/ui.js'); ?>?v=20250906b" defer></script>
+<script src="<?php echo url('assets/js/ui.js'); ?>?v=20250924b" defer></script>
 </body>
 </html>
